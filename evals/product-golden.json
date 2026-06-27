@@ -1,0 +1,122 @@
+[
+  {
+    "id": "prod-001",
+    "skill": "murabaha-specialist",
+    "query": "Explain Murabaha with an example",
+    "must_contain": ["cost-plus", "profit", "markup"],
+    "must_not_contain": ["interest", "riba"],
+    "category": "product-explanation"
+  },
+  {
+    "id": "prod-002",
+    "skill": "zakat-advisor",
+    "query": "How do I calculate zakat on my savings?",
+    "must_contain": ["2.5%", "nisab", "lunar year"],
+    "must_not_contain": ["interest"],
+    "category": "calculation"
+  },
+  {
+    "id": "prod-003",
+    "skill": "ijara-specialist",
+    "query": "What is Ijara wa Iqtina?",
+    "must_contain": ["lease", "rent", "ownership"],
+    "must_not_contain": ["interest", "riba"],
+    "category": "product-explanation"
+  },
+  {
+    "id": "prod-004",
+    "skill": "shariah-compliance-checker",
+    "query": "Is conventional insurance halal?",
+    "must_contain": ["gharar", "takaful", "alternative"],
+    "must_not_contain": ["yes it is halal"],
+    "category": "compliance"
+  },
+  {
+    "id": "prod-005",
+    "skill": "salam-specialist",
+    "query": "How does salam financing work for agriculture?",
+    "must_contain": ["advance payment", "future delivery", "commodity"],
+    "must_not_contain": ["interest"],
+    "category": "product-explanation"
+  },
+  {
+    "id": "prod-006",
+    "skill": "istisna-a-specialist",
+    "query": "Explain Istisna'a for home construction",
+    "must_contain": ["manufacturing", "construction", "milestone"],
+    "must_not_contain": ["interest"],
+    "category": "product-explanation"
+  },
+  {
+    "id": "prod-007",
+    "skill": "sukuk-issuer",
+    "query": "How to structure sukuk issuance?",
+    "must_contain": ["SPV", "asset", "structure"],
+    "must_not_contain": ["interest", "bond"],
+    "category": "product-explanation"
+  },
+  {
+    "id": "prod-008",
+    "skill": "sukuk-investor",
+    "query": "What are the returns on Pakistan government sukuk?",
+    "must_contain": ["yield", "return", "ijara"],
+    "must_not_contain": ["interest rate"],
+    "category": "investment"
+  },
+  {
+    "id": "prod-009",
+    "skill": "takaful-ifrs17",
+    "query": "How does IFRS 17 apply to takaful operators?",
+    "must_contain": ["insurance contract", "measurement", "wakala"],
+    "must_not_contain": ["conventional insurance"],
+    "category": "accounting"
+  },
+  {
+    "id": "prod-010",
+    "skill": "musharaka-full",
+    "query": "What is full musharakah for SME financing?",
+    "must_contain": ["partnership", "profit sharing", "equity"],
+    "must_not_contain": ["interest", "loan"],
+    "category": "product-explanation"
+  },
+  {
+    "id": "calc-001",
+    "skill": "murabaha-specialist",
+    "query": "Calculate murabaha profit on PKR 1,000,000 at 15% for 5 years",
+    "must_contain": ["1,000,000", "15%", "profit", "total"],
+    "must_not_contain": ["interest"],
+    "category": "calculation"
+  },
+  {
+    "id": "calc-002",
+    "skill": "zakat-advisor",
+    "query": "Calculate zakat on 10 tola gold",
+    "must_contain": ["gold", "2.5%", "nisab"],
+    "must_not_contain": ["interest"],
+    "category": "calculation"
+  },
+  {
+    "id": "compliance-001",
+    "skill": "shariah-compliance-checker",
+    "query": "Is stock trading halal?",
+    "must_contain": ["shariah screening", "halal stocks", "sector screening"],
+    "must_not_contain": ["all stocks are halal"],
+    "category": "compliance"
+  },
+  {
+    "id": "compliance-002",
+    "skill": "shariah-compliance-checker",
+    "query": "Kya credit card use karna jaiz hai?",
+    "must_contain": ["riba", "interest", "alternative"],
+    "must_not_contain": ["yes it is permissible"],
+    "category": "compliance"
+  },
+  {
+    "id": "disclaimer-001",
+    "skill": "murabaha-specialist",
+    "query": "Should I take a murabaha loan from Meezan Bank?",
+    "must_contain": ["Shariah Advisor", "disclaimer", "consult"],
+    "must_not_contain": [],
+    "category": "disclaimer-check"
+  }
+]

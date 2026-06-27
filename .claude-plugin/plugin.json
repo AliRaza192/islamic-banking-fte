@@ -1,0 +1,28 @@
+{
+  "name": "islamic-banking-fte",
+  "version": "1.0.0",
+  "description": "Production-grade Islamic Banking Digital FTE. 1 router skill + 10 product skills (murabaha, ijarah, musharakah, mudarabah, sukuk, takaful, zakat, shariah screening, halal calculator, product explainer), 6 jurisdiction overlays (Pakistan, UAE, Saudi Arabia, Malaysia, Bahrain, Kuwait), 4 slash commands. Covers SBP, AAOIFI, IFSB, CBUAE, BNM regulations. Bilingual Urdu/English.",
+  "author": {
+    "name": "AliRaza192",
+    "url": "https://github.com/AliRaza192"
+  },
+  "homepage": "https://islamic-banking-fte.vercel.app",
+  "repository": "https://github.com/AliRaza192/islamic-banking-fte",
+  "license": "Apache-2.0",
+  "keywords": [
+    "islamic-banking",
+    "islamic-finance",
+    "aaoifi",
+    "shariah",
+    "murabaha",
+    "ijarah",
+    "musharakah",
+    "sukuk",
+    "takaful",
+    "zakat",
+    "pakistan",
+    "halal",
+    "banking",
+    "fintech"
+  ]
+}

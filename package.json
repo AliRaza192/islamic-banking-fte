@@ -1,0 +1,27 @@
+{
+  "name": "islamic-banking-fte",
+  "version": "1.0.0",
+  "description": "> *\"In the name of Allah, the Most Gracious, the Most Merciful\"*",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AliRaza192/islamic-banking-fte.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/AliRaza192/islamic-banking-fte/issues"
+  },
+  "homepage": "https://github.com/AliRaza192/islamic-banking-fte#readme",
+  "dependencies": {
+    "@neondatabase/serverless": "1.1.0",
+    "jsonwebtoken": "9.0.3",
+    "resend": "6.12.4",
+    "stripe": "22.2.0"
+  }
+}

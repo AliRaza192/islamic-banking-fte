@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css" />
+  <title>Islamic Finance Calculators 🕌</title>
+  <style>
+    /* ---- Calculator Page Specific ---- */
+    .calc-page { min-height: 100vh; background: var(--bg); }
+
+    .calc-nav {
+      background: var(--green-dark);
+      color: white;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .calc-nav-brand {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-weight: 700; font-size: 1rem;
+      color: white; text-decoration: none;
+    }
+    .calc-nav-links { display: flex; gap: 0.75rem; }
+    .calc-nav-links a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 0.82rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+    .calc-nav-links a:hover    { color: white; background: rgba(255,255,255,0.12); }
+    .calc-nav-links a.cta      { background: var(--gold); color: white; }
+    .calc-nav-links a.cta:hover { background: #b8963e; }
+
+    /* Tabs */
+    .calc-tabs {
+      display: flex;
+      gap: 0;
+      background: white;
+      border-bottom: 2px solid var(--border);
+      overflow-x: auto;
+      padding: 0 1.5rem;
+    }
+    .calc-tab {
+      padding: 0.85rem 1.25rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 2.5px solid transparent;
+      margin-bottom: -2px;
+      white-space: nowrap;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .calc-tab:hover  { color: var(--green-dark); }
+    .calc-tab.active {
+      color: var(--green-dark);
+      border-bottom-color: var(--green-dark);
+    }
+
+    /* Panel */
+    .calc-panels { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+    .calc-panel  { display: none; }
+    .calc-panel.active { display: block; }
+
+    .panel-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin-bottom: 0.35rem;
+    }
+    .panel-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    /* Form grid */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .form-group input,
+    .form-group select {
+      padding: 0.65rem 0.9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: var(--text-primary);
+      background: white;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus,
+    .form-group select:focus { border-color: var(--green-light); }
+    .form-group .hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .calc-btn {
+      padding: 0.75rem 2rem;
+      background: var(--green-dark);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: inherit;
+    }
+    .calc-btn:hover { background: var(--green-mid); }
+
+    .calc-btn-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .reset-btn {
+      padding: 0.75rem 1.25rem;
+      background: none;
+      color: var(--text-muted);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .reset-btn:hover { border-color: var(--green-mid); color: var(--green-dark); }
+
+    /* Result section */
+    .result-section {
+      display: none;
+      margin-top: 2rem;
+      animation: fadeIn 0.25s ease;
+    }
+    .result-section.show { display: block; }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .result-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--green-dark);
+    }
+    .ask-ai-btn {
+      padding: 0.4rem 1rem;
+      background: var(--green-pale);
+      color: var(--green-dark);
+      border: 1px solid var(--green-light);
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .ask-ai-btn:hover { background: var(--green-light); color: white; }
+
+    /* Summary cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .summary-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .summary-card.highlight {
+      background: var(--green-pale);
+      border-color: var(--green-light);
+    }
+    .summary-label { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+    .summary-value {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      line-height: 1.2;
+    }
+    .summary-sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+    /* Schedule table */
+    .schedule-wrap {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+    .schedule-header {
+      background: var(--green-dark);
+      color: white;
+      padding: 0.6rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .schedule-table th {
+      background: #f0f7f1;
+      color: var(--green-dark);
+      padding: 0.5rem 0.75rem;
+      text-align: right;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+    }
+    .schedule-table th:first-child { text-align: center; }
+    .schedule-table td {
+      padding: 0.45rem 0.75rem;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+    .schedule-table td:first-child { text-align: center; color: var(--text-muted); }
+    .schedule-table tr:last-child td { border-bottom: none; }
+    .schedule-table tr:nth-child(even) td { background: #fafcfa; }
+
+    /* Zakat breakdown */
+    .zakat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+    }
+    .zakat-row:last-child { border-bottom: none; }
+    .zakat-label { color: var(--text-muted); }
+    .zakat-value { font-weight: 600; color: var(--text-primary); }
+    .zakat-value.deduction { color: #c0392b; }
+    .zakat-total-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--green-pale);
+      border-radius: 8px;
+      margin-top: 0.75rem;
+      font-weight: 700;
+      color: var(--green-dark);
+    }
+
+    /* Disclaimer */
+    .calc-disclaimer {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1rem;
+      background: #fff8e1;
+      border-left: 3px solid var(--gold);
+      border-radius: 6px;
+      font-size: 0.78rem;
+      color: #7a5c00;
+      line-height: 1.6;
+    }
+
+    /* Compliance result */
+    .compliance-result {
+      padding: 1rem 1.25rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+    .compliance-result.halal  { background: #f0fff4; border: 1.5px solid var(--green-light); }
+    .compliance-result.haram  { background: #fff5f5; border: 1.5px solid #fc8181; }
+    .compliance-verdict { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .compliance-issue {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      font-size: 0.83rem;
+    }
+    .issue-cat {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: #fed7d7;
+      color: #c53030;
+      white-space: nowrap;
+      align-self: flex-start;
+      margin-top: 1px;
+    }
+
+    /* Nisab check pill */
+    .nisab-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .nisab-pill.met     { background: var(--green-pale); color: var(--green-dark); }
+    .nisab-pill.not-met { background: #fff8e1; color: #7a5c00; }
+
+    /* Mobile */
+    @media (max-width: 640px) {
+      .form-grid    { grid-template-columns: 1fr; }
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+      .calc-tabs    { padding: 0 0.75rem; }
+      .calc-panels  { padding: 1.25rem 1rem; }
+      .calc-tab     { padding: 0.75rem 0.85rem; font-size: 0.78rem; }
+      .schedule-wrap { overflow-x: auto; }
+      .schedule-table { min-width: 400px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="calc-page">
+
+  <!-- Nav -->
+  <nav class="calc-nav">
+    <a href="/chat" class="calc-nav-brand">
+      <span>🕌</span>
+      <span>Islamic Banking FTE</span>
+    </a>
+    <div class="calc-nav-links">
+      <a href="/chat">AI Chat</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="/chat" class="cta">Ask AI →</a>
+    </div>
+  </nav>
+
+  <!-- Tabs -->
+  <div class="calc-tabs" id="calcTabs">
+    <button class="calc-tab active" data-tab="murabaha">📊 Murabaha</button>
+    <button class="calc-tab" data-tab="musharakah">🏠 Dim. Musharakah</button>
+    <button class="calc-tab" data-tab="ijara">🚗 Ijara</button>
+    <button class="calc-tab" data-tab="zakat">🌙 Zakat</button>
+    <button class="calc-tab" data-tab="sukuk">📜 Sukuk</button>
+    <button class="calc-tab" data-tab="compliance">✅ Halal Checker</button>
+  </div>
+
+  <div class="calc-panels">
+
+    <!-- ==============================
+         MURABAHA
+         ============================== -->
+    <div class="calc-panel active" id="panel-murabaha">
+      <div class="panel-title">📊 Murabaha Calculator</div>
+      <p class="panel-desc">
+        Bank aapke liye asset khareedta hai, phir cost + profit margin pe aapko bechta hai.
+        Monthly installments fixed rehti hain.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Asset ki qeemat (PKR)</label>
+          <input type="number" id="m-cost" placeholder="5000000" min="0" />
+          <span class="hint">e.g. 50 lakh home finance</span>
+        </div>
+        <div class="form-group">
+          <label>Bank profit margin (% per year)</label>
+          <input type="number" id="m-rate" placeholder="18" min="0" max="100" step="0.5" />
+          <span class="hint">Meezan Bank: ~17-22%</span>
+        </div>
+        <div class="form-group">
+          <label>Tenure</label>
+          <select id="m-tenure">
+            <option value="12">1 Saal (12 months)</option>
+            <option value="24">2 Saal (24 months)</option>
+            <option value="36">3 Saal (36 months)</option>
+            <option value="60" selected>5 Saal (60 months)</option>
+            <option value="120">10 Saal (120 months)</option>
+            <option value="180">15 Saal (180 months)</option>
+            <option value="240">20 Saal (240 months)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Down payment (%)</label>
+          <input type="number" id="m-down" placeholder="20" min="0" max="90" step="5" />
+          <span class="hint">0 for no down payment</span>
+        </div>
+      </div>
+      <div class="calc-btn-row">
+        <button class="calc-btn" onclick="calcMurabaha()">Calculate karo</button>
+        <button class="reset-btn" onclick="resetPanel('murabaha')">Reset</button>
+      </div>
+
+      <div class="result-section" id="result-murabaha">
+        <div class="result-header">
+          <div class="result-title">Murabaha Calculation Result</div>
+          <a class="ask-ai-btn" id="ai-link-murabaha" href="/chat">🤖 AI se mazeed poochein</a>
+        </div>
+        <div class="summary-grid" id="summary-murabaha"></div>
+        <div class="schedule-wrap">
+          <div class="schedule-header">📅 Payment Schedule (First 12 months)</div>
+          <div style="overflow-x:auto">
+            <table class="schedule-table">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Principal</th>
+                  <th>Profit</th>
+                  <th>Monthly Payment</th>
+                  <th>Balance</th>
+                </tr>
+              </thead>
+              <tbody id="schedule-murabaha"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="calc-disclaimer">
+          ⚠️ <strong>Shariah Disclaimer:</strong> Yeh calculation educational purposes ke liye hai.
+          Actual Murabaha financing mein bank ke Shariah Board ki approval aur signed agreement zaroor hoti hai.
+          Profit rate banks ke mutabiq alag ho sakti hai. Apne bank se actual quote lein.
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================
+         DIMINISHING MUSHARAKAH
+         ============================== -->
+    <div class="calc-panel" id="panel-musharakah">
+      <div class="panel-title">🏠 Diminishing Musharakah Calculator</div>
+      <p class="panel-desc">
+        Aap aur bank milkar ghar khareedtay hain. Har mahine aap bank ka hissa khareedtay hain.
+        Jaise jaise bank ka hissa kam hota hai, rent bhi kam hoti hai — har mahine payment kam hoti hai.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Property value (PKR)</label>
+          <input type="number" id="ms-value" placeholder="10000000" min="0" />
+          <span class="hint">e.g. 1 crore property</span>
+        </div>
+        <div class="form-group">
+          <label>Bank ka hissa (%)</label>
+          <input type="number" id="ms-bank" placeholder="80" min="10" max="95" step="5" />
+          <span class="hint">Aapka down payment = 100 - bank%</span>
+        </div>
+        <div class="form-group">
+          <label>Annual profit rate (%)</label>
+          <input type="number" id="ms-rate" placeholder="19" min="0" max="100" step="0.5" />
+        </div>
+        <div class="form-group">
+          <label>Tenure</label>
+          <select id="ms-tenure">
+            <option value="60">5 Saal</option>
+            <option value="120" selected>10 Saal</option>
+            <option value="180">15 Saal</option>
+            <option value="240">20 Saal</option>
+          </select>
+        </div>
+      </div>
+      <div class="calc-btn-row">
+        <button class="calc-btn" onclick="calcMusharakah()">Calculate karo</button>
+        <button class="reset-btn" onclick="resetPanel('musharakah')">Reset</button>
+      </div>
+
+      <div class="result-section" id="result-musharakah">
+        <div class="result-header">
+          <div class="result-title">Diminishing Musharakah Result</div>
+          <a class="ask-ai-btn" id="ai-link-musharakah" href="/chat">🤖 AI se mazeed poochein</a>
+        </div>
+        <div class="summary-grid" id="summary-musharakah"></div>
+        <div class="schedule-wrap">
+          <div class="schedule-header">📅 Payment Schedule (First 12 months — decreasing)</div>
+          <div style="overflow-x:auto">
+            <table class="schedule-table">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Rent</th>
+                  <th>Buyback</th>
+                  <th>Total Payment</th>
+                  <th>Bank Balance</th>
+                </tr>
+              </thead>
+              <tbody id="schedule-musharakah"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="calc-disclaimer">
+          ⚠️ <strong>Shariah Disclaimer:</strong> Diminishing Musharakah mein actual rental rates
+          market conditions ke mutabiq adjust ho sakti hain. Yeh educational estimate hai.
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================
+         IJARA
+         ============================== -->
+    <div class="calc-panel" id="panel-ijara">
+      <div class="panel-title">🚗 Ijara Calculator</div>
+      <p class="panel-desc">
+        Bank asset (car/equipment) khareedta hai aur aapko lease pe deta hai.
+        Lease period ke end mein ownership transfer hoti hai (Ijara wa Iqtina).
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Asset value (PKR)</label>
+          <input type="number" id="ij-value" placeholder="3000000" min="0" />
+          <span class="hint">e.g. 30 lakh car</span>
+        </div>
+        <div class="form-group">
+          <label>Annual rental rate (%)</label>
+          <input type="number" id="ij-rate" placeholder="20" min="0" max="100" step="0.5" />
+        </div>
+        <div class="form-group">
+          <label>Tenure</label>
+          <select id="ij-tenure">
+            <option value="12">1 Saal</option>
+            <option value="24">2 Saal</option>
+            <option value="36" selected>3 Saal</option>
+            <option value="48">4 Saal</option>
+            <option value="60">5 Saal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Residual value at end (%)</label>
+          <input type="number" id="ij-residual" placeholder="10" min="0" max="50" step="5" />
+          <span class="hint">0 agar puri ownership transfer</span>
+        </div>
+      </div>
+      <div class="calc-btn-row">
+        <button class="calc-btn" onclick="calcIjara()">Calculate karo</button>
+        <button class="reset-btn" onclick="resetPanel('ijara')">Reset</button>
+      </div>
+
+      <div class="result-section" id="result-ijara">
+        <div class="result-header">
+          <div class="result-title">Ijara Calculation Result</div>
+          <a class="ask-ai-btn" id="ai-link-ijara" href="/chat">🤖 AI se mazeed poochein</a>
+        </div>
+        <div class="summary-grid" id="summary-ijara"></div>
+        <div class="calc-disclaimer">
+          ⚠️ <strong>Shariah Disclaimer:</strong> Ijara mein bank asset ka maalik rehta hai aur
+          maintenance responsibility bank ki hoti hai (unless contracted otherwise).
+          Yeh educational calculation hai.
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================
+         ZAKAT
+         ============================== -->
+    <div class="calc-panel" id="panel-zakat">
+      <div class="panel-title">🌙 Zakat Calculator</div>
+      <p class="panel-desc">
+        Apni zakatable wealth darj karein. Agar nisab poora ho aur ek saal (Hawl) guzra ho
+        to 2.5% Zakat wajib hoti hai. Silver nisab use ho rahi hai (Pakistan mein zyada common).
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Cash + Bank savings (PKR)</label>
+          <input type="number" id="z-savings" placeholder="500000" min="0" />
+        </div>
+        <div class="form-group">
+          <label>Gold (Tola)</label>
+          <input type="number" id="z-gold" placeholder="0" min="0" step="0.1" />
+          <span class="hint">1 Tola = 11.664 grams</span>
+        </div>
+        <div class="form-group">
+          <label>Silver (Tola)</label>
+          <input type="number" id="z-silver" placeholder="0" min="0" step="0.1" />
+        </div>
+        <div class="form-group">
+          <label>Business assets (PKR)</label>
+          <input type="number" id="z-business" placeholder="0" min="0" />
+          <span class="hint">Stock, inventory, etc.</span>
+        </div>
+        <div class="form-group">
+          <label>Investments (PKR)</label>
+          <input type="number" id="z-investments" placeholder="0" min="0" />
+          <span class="hint">Shares, mutual funds, etc.</span>
+        </div>
+        <div class="form-group">
+          <label>Receivables (PKR)</label>
+          <input type="number" id="z-receivables" placeholder="0" min="0" />
+          <span class="hint">Paise jo doosron se milne hain</span>
+        </div>
+        <div class="form-group">
+          <label>Liabilities (PKR)</label>
+          <input type="number" id="z-liabilities" placeholder="0" min="0" />
+          <span class="hint">Qarz jo ABHI dena ho</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:.5rem;display:flex;gap:1rem;flex-wrap:wrap">
+        <span>🥇 Gold: <strong id="live-gold-rate">Loading...</strong></span>
+        <span>🥈 Silver: <strong id="live-silver-rate">Loading...</strong></span>
+        <span id="live-rates-updated" style="opacity:.6"></span>
+      </div>
+      <div class="calc-btn-row">
+        <button class="calc-btn" onclick="calcZakat()">Calculate Zakat</button>
+        <button class="reset-btn" onclick="resetPanel('zakat')">Reset</button>
+      </div>
+
+      <div class="result-section" id="result-zakat">
+        <div class="result-header">
+          <div class="result-title">Zakat Calculation Result</div>
+          <a class="ask-ai-btn" id="ai-link-zakat" href="/chat">🤖 AI se mazeed poochein</a>
+        </div>
+        <div id="nisab-pill-container"></div>
+        <div class="schedule-wrap" style="margin-bottom:1rem">
+          <div class="schedule-header">💰 Wealth Breakdown</div>
+          <div style="padding:0.75rem 1rem" id="zakat-breakdown"></div>
+        </div>
+        <div class="summary-grid" id="summary-zakat"></div>
+        <div class="calc-disclaimer">
+          ⚠️ <strong>Shariah Disclaimer:</strong> Zakat ke masail mein ikhtilaaf hai.
+          Gold nisab ya silver nisab — dono valid hain, scholars ka alag alag raai hai.
+          Nisab rates quarterly update honay chahiye. Apne Imam ya Mufti se consult zaroor karein.
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================
+         SUKUK
+         ============================== -->
+    <div class="calc-panel" id="panel-sukuk">
+      <div class="panel-title">📜 Sukuk Return Calculator</div>
+      <p class="panel-desc">
+        Sukuk Islamic bonds hain — aap issuer ko paise dete hain, woh asset-backed periodic
+        profit payments deta hai aur maturity pe principal return karta hai.
+        Pakistan mein WAPDA Sukuk, GoP Ijarah Sukuk popular hain.
+      </p>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Face value (PKR)</label>
+          <input type="number" id="sk-value" placeholder="1000000" min="0" />
+          <span class="hint">e.g. 10 lakh investment</span>
+        </div>
+        <div class="form-group">
+          <label>Annual profit rate (%)</label>
+          <input type="number" id="sk-rate" placeholder="17" min="0" max="100" step="0.25" />
+        </div>
+        <div class="form-group">
+          <label>Tenure (years)</label>
+          <select id="sk-tenure">
+            <option value="1">1 Saal</option>
+            <option value="2">2 Saal</option>
+            <option value="3" selected>3 Saal</option>
+            <option value="5">5 Saal</option>
+            <option value="7">7 Saal</option>
+            <option value="10">10 Saal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Payment frequency</label>
+          <select id="sk-freq">
+            <option value="semi-annual" selected>Semi-annual (har 6 mahine)</option>
+            <option value="quarterly">Quarterly (har 3 mahine)</option>
+          </select>
+        </div>
+      </div>
+      <div class="calc-btn-row">
+        <button class="calc-btn" onclick="calcSukuk()">Calculate karo</button>
+        <button class="reset-btn" onclick="resetPanel('sukuk')">Reset</button>
+      </div>
+
+      <div class="result-section" id="result-sukuk">
+        <div class="result-header">
+          <div class="result-title">Sukuk Return Calculation</div>
+          <a class="ask-ai-btn" id="ai-link-sukuk" href="/chat">🤖 AI se mazeed poochein</a>
+        </div>
+        <div class="summary-grid" id="summary-sukuk"></div>
+        <div class="schedule-wrap">
+          <div class="schedule-header">📅 Payment Schedule</div>
+          <div style="overflow-x:auto">
+            <table class="schedule-table">
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th>Type</th>
+                  <th>Profit</th>
+                  <th>Principal</th>
+                  <th>Total Received</th>
+                </tr>
+              </thead>
+              <tbody id="schedule-sukuk"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="calc-disclaimer">
+          ⚠️ <strong>Shariah Disclaimer:</strong> Sukuk returns asset-backed hote hain.
+          Actual profit rates issuer aur market conditions pe depend karti hain. Yeh educational estimate hai.
+        </div>
+      </div>
+    </div>
+
+    <!-- ==============================
+         HALAL CHECKER
+         ============================== -->
+    <div class="calc-panel" id="panel-compliance">
+      <div class="panel-title">✅ Shariah Compliance Checker</div>
+      <p class="panel-desc">
+        Koi bhi investment, product, ya transaction describe karein.
+        System Riba, Gharar, Maysir aur Haram industries ke liye automatically check karega.
+      </p>
+      <div class="form-group" style="margin-bottom:1rem">
+        <label>Product / Transaction description</label>
+        <textarea
+          id="compliance-text"
+          rows="4"
+          placeholder="e.g. 'Fixed deposit account with 12% guaranteed annual interest' ya 'Stock market investment in cement company'..."
+          style="width:100%;padding:0.75rem 1rem;border:1.5px solid var(--border);border-radius:8px;font-size:0.9rem;font-family:inherit;outline:none;resize:vertical;transition:border-color 0.15s"
+          onfocus="this.style.borderColor='var(--green-light)'"
+          onblur="this.style.borderColor='var(--border)'"
+        ></textarea>
+      </div>
+      <div class="calc-btn-row">
+        <button class="calc-btn" onclick="checkCompliance()">Check karein</button>
+        <button class="reset-btn" onclick="resetPanel('compliance')">Reset</button>
+      </div>
+
+      <div class="result-section" id="result-compliance">
+        <div id="compliance-output"></div>
+        <div class="calc-disclaimer">
+          ⚠️ <strong>Important:</strong> Yeh automated keyword check hai — formal Fatwa nahi.
+          Kisi bhi financial decision ke liye apne bank ke Shariah Advisor ya qualified Islamic
+          scholar se zaroor consult karein.
+          <br><br>
+          <a class="ask-ai-btn" id="ai-link-compliance" href="/chat">🤖 AI se detailed analysis lein →</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /calc-panels -->
+</div><!-- /calc-page -->
+
+<script src="js/calculators.js"></script>
+<script>
+// ---- TAB SWITCHING ----
+document.querySelectorAll('.calc-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.calc-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.calc-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ---- PKR FORMAT HELPER ----
+function fmt(n) { return IslamicCalc.formatPKR(n); }
+function fmtRaw(n) { return 'PKR ' + Math.round(n).toLocaleString('en-PK'); }
+
+// ---- SHOW RESULT ----
+function showResult(id) {
+  document.getElementById('result-' + id).classList.add('show');
+  document.getElementById('result-' + id).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ---- RESET ----
+function resetPanel(id) {
+  document.getElementById('result-' + id).classList.remove('show');
+}
+
+// ---- BUILD SUMMARY CARDS ----
+function buildSummary(containerId, cards) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = cards.map(c => `
+    <div class="summary-card ${c.highlight ? 'highlight' : ''}">
+      <div class="summary-label">${c.label}</div>
+      <div class="summary-value">${c.value}</div>
+      ${c.sub ? `<div class="summary-sub">${c.sub}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ---- AI LINK BUILDER ----
+function buildAiLink(id, prompt) {
+  const el = document.getElementById('ai-link-' + id);
+  if (el) el.href = '/chat?q=' + encodeURIComponent(prompt);
+}
+
+// ============================================================
+// MURABAHA
+// ============================================================
+function calcMurabaha() {
+  const cost   = parseFloat(document.getElementById('m-cost').value);
+  const rate   = parseFloat(document.getElementById('m-rate').value);
+  const tenure = parseInt(document.getElementById('m-tenure').value);
+  const down   = parseFloat(document.getElementById('m-down').value) || 0;
+
+  if (!cost || !rate || !tenure) { alert('Sab fields fill karein'); return; }
+
+  const r = IslamicCalc.murabaha({ assetCost: cost, profitRate: rate, tenureMonths: tenure, downPaymentPct: down });
+
+  buildSummary('summary-murabaha', [
+    { label: 'Asset Cost',         value: fmt(r.assetCost) },
+    { label: 'Down Payment',       value: fmt(r.downPayment), sub: down + '%' },
+    { label: 'Financed Amount',    value: fmt(r.financedAmount) },
+    { label: 'Total Profit',       value: fmt(r.profitAmount), sub: rate + '% p.a.' },
+    { label: 'Total Payable',      value: fmt(r.totalPayable) },
+    { label: 'Monthly Installment', value: fmtRaw(r.monthlyPayment), highlight: true, sub: tenure + ' months' },
+  ]);
+
+  const tbody = document.getElementById('schedule-murabaha');
+  tbody.innerHTML = r.schedule.map(row => `
+    <tr>
+      <td>${row.month}</td>
+      <td>${fmtRaw(row.principal)}</td>
+      <td>${fmtRaw(row.profit)}</td>
+      <td><strong>${fmtRaw(row.payment)}</strong></td>
+      <td>${fmtRaw(row.balance)}</td>
+    </tr>
+  `).join('');
+
+  buildAiLink('murabaha',
+    `Maine Murabaha calculate kiya: Asset ${fmt(r.assetCost)}, ${rate}% profit rate, ${tenure} months tenure. Monthly installment ${fmtRaw(r.monthlyPayment)} aati hai. Kya yeh rate theek hai? Pakistan mein best Islamic bank kaun dega?`
+  );
+
+  showResult('murabaha');
+}
+
+// ============================================================
+// DIMINISHING MUSHARAKAH
+// ============================================================
+function calcMusharakah() {
+  const value  = parseFloat(document.getElementById('ms-value').value);
+  const bank   = parseFloat(document.getElementById('ms-bank').value);
+  const rate   = parseFloat(document.getElementById('ms-rate').value);
+  const tenure = parseInt(document.getElementById('ms-tenure').value);
+
+  if (!value || !bank || !rate) { alert('Sab fields fill karein'); return; }
+
+  const r = IslamicCalc.diminishingMusharakah({ propertyValue: value, bankSharePct: bank, profitRate: rate, tenureMonths: tenure });
+
+  buildSummary('summary-musharakah', [
+    { label: 'Property Value',      value: fmt(r.propertyValue) },
+    { label: 'Bank Contribution',   value: fmt(r.bankAmount), sub: bank + '%' },
+    { label: 'Your Down Payment',   value: fmt(r.customerAmount), sub: (100-bank) + '%' },
+    { label: 'First Month Payment', value: fmtRaw(r.firstMonthTotal), highlight: true, sub: 'Highest' },
+    { label: 'Last Month Payment',  value: fmtRaw(r.lastMonthTotal), sub: 'Lowest' },
+    { label: 'Total Paid',          value: fmt(r.totalPaid) },
+  ]);
+
+  const tbody = document.getElementById('schedule-musharakah');
+  tbody.innerHTML = r.schedule.map(row => `
+    <tr>
+      <td>${row.month}</td>
+      <td>${fmtRaw(row.rent)}</td>
+      <td>${fmtRaw(row.buyback)}</td>
+      <td><strong>${fmtRaw(row.totalPayment)}</strong></td>
+      <td>${fmtRaw(row.bankBalance)}</td>
+    </tr>
+  `).join('');
+
+  buildAiLink('musharakah',
+    `Diminishing Musharakah: Property ${fmt(r.propertyValue)}, bank share ${bank}%, ${rate}% rate. First month ${fmtRaw(r.firstMonthTotal)}. Murabaha se compare karein — konsa behtar hai home financing ke liye?`
+  );
+
+  showResult('musharakah');
+}
+
+// ============================================================
+// IJARA
+// ============================================================
+function calcIjara() {
+  const value    = parseFloat(document.getElementById('ij-value').value);
+  const rate     = parseFloat(document.getElementById('ij-rate').value);
+  const tenure   = parseInt(document.getElementById('ij-tenure').value);
+  const residual = parseFloat(document.getElementById('ij-residual').value) || 10;
+
+  if (!value || !rate) { alert('Sab fields fill karein'); return; }
+
+  const r = IslamicCalc.ijara({ assetValue: value, rentalRate: rate, tenureMonths: tenure, residualValuePct: residual });
+
+  buildSummary('summary-ijara', [
+    { label: 'Asset Value',      value: fmt(r.assetValue) },
+    { label: 'Monthly Rent',     value: fmtRaw(r.monthlyRent), highlight: true, sub: tenure + ' months' },
+    { label: 'Total Rent Paid',  value: fmt(r.totalRent) },
+    { label: 'Residual Value',   value: fmt(r.residualValue), sub: residual + '% at end' },
+    { label: 'Total Cost',       value: fmt(r.totalCost) },
+    { label: 'Annual Rate',      value: rate + '%', sub: 'per year' },
+  ]);
+
+  buildAiLink('ijara',
+    `Ijara calculation: Asset ${fmt(r.assetValue)}, monthly rent ${fmtRaw(r.monthlyRent)}, ${tenure} months. Car financing ke liye Pakistan mein Ijara aur Murabaha mein kya farq hai?`
+  );
+
+  showResult('ijara');
+}
+
+// ============================================================
+// ZAKAT
+// ============================================================
+function calcZakat() {
+  const r = IslamicCalc.zakat({
+    savings:        document.getElementById('z-savings').value      || 0,
+    goldTola:       document.getElementById('z-gold').value         || 0,
+    silverTola:     document.getElementById('z-silver').value       || 0,
+    businessAssets: document.getElementById('z-business').value     || 0,
+    investments:    document.getElementById('z-investments').value   || 0,
+    receivables:    document.getElementById('z-receivables').value   || 0,
+    liabilities:    document.getElementById('z-liabilities').value   || 0,
+  });
+
+  // Nisab pill
+  const pillEl = document.getElementById('nisab-pill-container');
+  pillEl.innerHTML = r.nisabMet
+    ? `<div class="nisab-pill met">✅ Nisab poora hua — Zakat wajib hai (Silver: ${fmtRaw(r.nisabSilverPKR)})</div>`
+    : `<div class="nisab-pill not-met">⚠️ Nisab poora nahi hua — Zakat wajib nahi (Threshold: ${fmtRaw(r.nisabSilverPKR)})</div>`;
+
+  // Breakdown
+  const labels = {
+    savings: 'Cash / Savings', goldValue: 'Gold', silverValue: 'Silver',
+    businessAssets: 'Business Assets', investments: 'Investments',
+    receivables: 'Receivables', liabilities: 'Liabilities (deducted)',
+  };
+  const breakdownEl = document.getElementById('zakat-breakdown');
+  breakdownEl.innerHTML = Object.entries(r.breakdown)
+    .filter(([, v]) => v !== 0)
+    .map(([k, v]) => `
+      <div class="zakat-row">
+        <span class="zakat-label">${labels[k] || k}</span>
+        <span class="zakat-value ${v < 0 ? 'deduction' : ''}">${fmtRaw(Math.abs(v))}</span>
+      </div>
+    `).join('') +
+    `<div class="zakat-total-row">
+      <span>Total Zakatable Wealth</span>
+      <span>${fmtRaw(r.totalWealth)}</span>
+    </div>`;
+
+  buildSummary('summary-zakat', [
+    { label: 'Total Wealth',    value: fmtRaw(r.totalWealth) },
+    { label: 'Nisab (Silver)',  value: fmtRaw(r.nisabSilverPKR) },
+    { label: 'Zakat Rate',      value: '2.5%' },
+    { label: 'Zakat Amount',    value: fmtRaw(r.zakatAmount), highlight: r.nisabMet, sub: r.nisabMet ? 'Wajib' : 'N/A' },
+  ]);
+
+  buildAiLink('zakat',
+    `Mera total zakatable wealth ${fmtRaw(r.totalWealth)} hai. Zakat ${r.nisabMet ? fmtRaw(r.zakatAmount) + ' wajib hai' : 'wajib nahi'}. Zakat kaise aur kahan dein? Gold nisab aur silver nisab mein kya farq hai?`
+  );
+
+  showResult('zakat');
+}
+
+// ============================================================
+// SUKUK
+// ============================================================
+function calcSukuk() {
+  const value  = parseFloat(document.getElementById('sk-value').value);
+  const rate   = parseFloat(document.getElementById('sk-rate').value);
+  const tenure = parseFloat(document.getElementById('sk-tenure').value);
+  const freq   = document.getElementById('sk-freq').value;
+
+  if (!value || !rate) { alert('Sab fields fill karein'); return; }
+
+  const r = IslamicCalc.sukuk({ faceValue: value, profitRate: rate, tenureYears: tenure, frequency: freq });
+
+  buildSummary('summary-sukuk', [
+    { label: 'Investment',         value: fmt(r.faceValue) },
+    { label: 'Periodic Payment',   value: fmtRaw(r.periodicPayment), highlight: true, sub: freq },
+    { label: 'Total Profit',       value: fmt(r.totalProfit) },
+    { label: 'Total Received',     value: fmt(r.totalReceived), sub: 'incl. principal' },
+    { label: 'Annual Return',      value: rate + '%' },
+    { label: 'Tenure',             value: tenure + ' years' },
+  ]);
+
+  const tbody = document.getElementById('schedule-sukuk');
+  tbody.innerHTML = r.schedule.map(row => `
+    <tr>
+      <td>${row.period}</td>
+      <td>${row.type}</td>
+      <td>${fmtRaw(row.payment)}</td>
+      <td>${row.principal ? fmtRaw(row.principal) : '—'}</td>
+      <td><strong>${fmtRaw(row.payment + row.principal)}</strong></td>
+    </tr>
+  `).join('');
+
+  buildAiLink('sukuk',
+    `Sukuk investment: ${fmt(r.faceValue)} pe ${rate}% annual return, ${tenure} saal tenure. Total profit ${fmt(r.totalProfit)}. Pakistan mein konse Sukuk available hain aur kahan se khareedein?`
+  );
+
+  showResult('sukuk');
+}
+
+// ============================================================
+// SHARIAH COMPLIANCE
+// ============================================================
+function checkCompliance() {
+  const text = document.getElementById('compliance-text').value.trim();
+  if (!text) { alert('Kuch darj karein'); return; }
+
+  const r   = IslamicCalc.checkCompliance(text);
+  const out = document.getElementById('compliance-output');
+
+  if (r.compliant) {
+    out.innerHTML = `
+      <div class="compliance-result halal">
+        <div class="compliance-verdict">✅ No Obvious Shariah Issues Detected</div>
+        <p style="font-size:0.85rem;color:var(--text-muted)">
+          Automated check mein koi Riba, Gharar, Maysir, ya Haram industry keyword nahi mila.
+          Lekin formal Fatwa ke liye Shariah Advisor se zaroor milein.
+        </p>
+      </div>`;
+  } else {
+    out.innerHTML = `
+      <div class="compliance-result haram">
+        <div class="compliance-verdict">⚠️ ${r.issues.length} Potential Issue(s) Found</div>
+        ${r.issues.map(i => `
+          <div class="compliance-issue">
+            <span class="issue-cat">${i.category}</span>
+            <span>${i.issue}</span>
+          </div>
+        `).join('')}
+      </div>`;
+  }
+
+  buildAiLink('compliance',
+    `Yeh product/transaction check karein: "${text.slice(0, 200)}". Shariah compliance ke lihaaz se kya masail hain?`
+  );
+
+  showResult('compliance');
+}
+
+// ============================================================
+// LIVE RATES — goldapi.io via /api/rates
+// ============================================================
+let _liveRatesLoaded = false;
+
+async function loadLiveRates() {
+  const badge    = document.getElementById('rates-badge');
+  const updated  = document.getElementById('live-rates-updated');
+
+  if (badge) {
+    badge.innerHTML = '<span class="rates-loading">⏳ Loading live rates...</span>';
+  }
+
+  try {
+    const res   = await fetch('/api/rates', { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) throw new Error('API error ' + res.status);
+    const rates = await res.json();
+
+    // Set global for calculators.js to use
+    window._liveRates = rates;
+    _liveRatesLoaded  = true;
+
+    // Format nicely
+    const goldFmt   = 'PKR ' + Math.round(rates.gold_pkr_per_tola).toLocaleString('en-PK');
+    const silverFmt = 'PKR ' + Math.round(rates.silver_pkr_per_tola).toLocaleString('en-PK');
+    const usdFmt    = 'PKR ' + parseFloat(rates.usd_pkr).toFixed(1);
+    const srcLabel  = rates.source === 'fallback' ? '📌 Fallback' :
+                      rates.cached ? '💾 Cached' : '🟢 Live';
+    const timeStr   = rates.updated
+      ? new Date(rates.updated).toLocaleString('en-PK', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' })
+      : 'Unknown';
+
+    if (badge) {
+      badge.innerHTML = `
+        <span class="rate-pill gold-pill">🥇 Gold: <strong>${goldFmt}</strong>/tola</span>
+        <span class="rate-pill silver-pill">🥈 Silver: <strong>${silverFmt}</strong>/tola</span>
+        <span class="rate-pill usd-pill">💵 USD: <strong>${usdFmt}</strong></span>
+        <span class="rate-pill src-pill">${srcLabel}</span>
+      `;
+    }
+    if (updated) {
+      updated.textContent = 'Updated: ' + timeStr;
+    }
+
+    // Update inline Zakat tab rate display
+    const goldInline   = document.getElementById('live-gold-rate');
+    const silverInline = document.getElementById('live-silver-rate');
+    if (goldInline)   goldInline.textContent   = goldFmt + '/tola';
+    if (silverInline) silverInline.textContent = silverFmt + '/tola';
+
+  } catch (err) {
+    console.warn('Live rates failed:', err.message);
+    if (badge) {
+      badge.innerHTML = '<span class="rates-loading" style="color:var(--gold)">⚠️ Using offline rates (goldapi.io unavailable)</span>';
+    }
+    // Ensure calculators still work with fallback
+    if (!window._liveRates) {
+      window._liveRates = {
+        gold_pkr_per_tola:   330000,
+        silver_pkr_per_tola: 310,
+        nisab_silver_pkr:    16275,
+        nisab_gold_pkr:      2475000,
+        source: 'offline-fallback'
+      };
+    }
+  }
+}
+
+// Load on page ready
+document.addEventListener('DOMContentLoaded', loadLiveRates);
+
+</script>
+</body>
+</html>

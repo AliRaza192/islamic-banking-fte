@@ -1,0 +1,254 @@
+[
+  {
+    "id": "route-001",
+    "query": "What is murabaha financing?",
+    "expected_skill": "murabaha-specialist",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-002",
+    "query": "Car loan halal hai?",
+    "expected_skill": "murabaha-specialist",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-003",
+    "query": "Calculate my zakat",
+    "expected_skill": "zakat-advisor",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-004",
+    "query": "Kitni zakat banti hai?",
+    "expected_skill": "zakat-advisor",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-005",
+    "query": "Ijara for car lease",
+    "expected_skill": "ijara-specialist",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-006",
+    "query": "Kiraya pe ghar",
+    "expected_skill": "ijara-specialist",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-007",
+    "query": "Salam forward sale for crops",
+    "expected_skill": "salam-specialist",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-008",
+    "query": "Istisna construction finance",
+    "expected_skill": "istisna-a-specialist",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-009",
+    "query": "How to issue sukuk for my company",
+    "expected_skill": "sukuk-issuer",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-010",
+    "query": "Sukuk investment yield",
+    "expected_skill": "sukuk-investor",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-011",
+    "query": "Takaful accounting IFRS 17",
+    "expected_skill": "takaful-ifrs17",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-012",
+    "query": "Full musharakah for SME",
+    "expected_skill": "musharaka-full",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-013",
+    "query": "Musharakah partnership",
+    "expected_skill": "musharakah-mudarabah-specialist",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-014",
+    "query": "Is this halal?",
+    "expected_skill": "shariah-compliance-checker",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-015",
+    "query": "Kya yeh jaiz hai?",
+    "expected_skill": "shariah-compliance-checker",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-016",
+    "query": "Calculate monthly installment",
+    "expected_skill": "halal-calculator",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-017",
+    "query": "What is Islamic banking?",
+    "expected_skill": "islamic-product-explainer",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-018",
+    "query": "Meezan Bank profit rate",
+    "expected_skill": "pakistan-banking-navigator",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-019",
+    "query": "Which bank is best for home finance?",
+    "expected_skill": "islamic-banking-advisor",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-020",
+    "query": "Takaful insurance kya hai?",
+    "expected_skill": "sukuk-takaful-specialist",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "juris-001",
+    "query": "Meezan Bank Pakistan",
+    "expected_skill": "pakistan-banking-navigator",
+    "expected_jurisdiction": "pakistan",
+    "category": "jurisdiction"
+  },
+  {
+    "id": "juris-002",
+    "query": "Emirates Islamic Bank Dubai",
+    "expected_skill": "islamic-banking-advisor",
+    "expected_jurisdiction": "uae",
+    "category": "jurisdiction"
+  },
+  {
+    "id": "juris-003",
+    "query": "Al Rajhi Bank Saudi Arabia",
+    "expected_skill": "islamic-banking-advisor",
+    "expected_jurisdiction": "saudi",
+    "category": "jurisdiction"
+  },
+  {
+    "id": "juris-004",
+    "query": "Maybank Islamic Malaysia",
+    "expected_skill": "islamic-banking-advisor",
+    "expected_jurisdiction": "malaysia",
+    "category": "jurisdiction"
+  },
+  {
+    "id": "juris-005",
+    "query": "Bahrain Islamic bank AAOIFI",
+    "expected_skill": "islamic-banking-advisor",
+    "expected_jurisdiction": "bahrain",
+    "category": "jurisdiction"
+  },
+  {
+    "id": "juris-006",
+    "query": "Kuwait Finance House",
+    "expected_skill": "islamic-banking-advisor",
+    "expected_jurisdiction": "kuwait",
+    "category": "jurisdiction"
+  },
+  {
+    "id": "juris-007",
+    "query": "Qatar Islamic Bank QIB",
+    "expected_skill": "islamic-banking-advisor",
+    "expected_jurisdiction": "qatar",
+    "category": "jurisdiction"
+  },
+  {
+    "id": "juris-008",
+    "query": "Bank Nizwa Oman",
+    "expected_skill": "islamic-banking-advisor",
+    "expected_jurisdiction": "oman",
+    "category": "jurisdiction"
+  },
+  {
+    "id": "juris-009",
+    "query": "Kuveyt Turk Turkey",
+    "expected_skill": "islamic-banking-advisor",
+    "expected_jurisdiction": "turkey",
+    "category": "jurisdiction"
+  },
+  {
+    "id": "juris-010",
+    "query": "Jaiz Bank Nigeria",
+    "expected_skill": "shariah-compliance-checker",
+    "expected_jurisdiction": "nigeria",
+    "category": "jurisdiction"
+  },
+  {
+    "id": "juris-011",
+    "query": "Bank Muamalat Indonesia",
+    "expected_skill": "islamic-banking-advisor",
+    "expected_jurisdiction": "indonesia",
+    "category": "jurisdiction"
+  },
+  {
+    "id": "juris-012",
+    "query": "Al Rayan Bank UK",
+    "expected_skill": "islamic-banking-advisor",
+    "expected_jurisdiction": "uk",
+    "category": "jurisdiction"
+  },
+  {
+    "id": "lang-001",
+    "query": "مرابحة کیا ہے؟",
+    "expected_skill": "murabaha-specialist",
+    "expected_jurisdiction": "pakistan",
+    "category": "urdu-routing"
+  },
+  {
+    "id": "lang-002",
+    "query": "زکات کتنی بنتی ہے؟",
+    "expected_skill": "zakat-advisor",
+    "expected_jurisdiction": "pakistan",
+    "category": "urdu-routing"
+  },
+  {
+    "id": "lang-003",
+    "query": "کیا یہ جائز ہے؟",
+    "expected_skill": "shariah-compliance-checker",
+    "expected_jurisdiction": "pakistan",
+    "category": "urdu-routing"
+  },
+  {
+    "id": "arabic-001",
+    "query": "ما هو المرابحة؟",
+    "expected_skill": "murabaha-specialist",
+    "expected_jurisdiction": "pakistan",
+    "category": "arabic-routing"
+  }
+]

@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "plugin": {
+    "id": "islamic-banking-fte",
+    "name": "Islamic Banking Digital FTE",
+    "version": "1.0.0",
+    "author": {
+      "name": "AliRaza192",
+      "url": "https://github.com/AliRaza192"
+    },
+    "license": "Apache-2.0",
+    "description": "Production-grade Islamic Banking Digital FTE providing Shariah-compliant financial guidance, halal product calculators, Zakat advisory, and Islamic banking product explanations for Pakistan and Gulf markets.",
+    "homepage": "https://islamic-banking-fte.vercel.app",
+    "repository": "https://github.com/AliRaza192/islamic-banking-fte",
+    "category": "finance",
+    "subcategory": "islamic-banking",
+    "tags": [
+      "islamic-banking",
+      "islamic-finance",
+      "shariah-compliant",
+      "halal-finance",
+      "zakat-calculator",
+      "murabaha",
+      "ijara",
+      "musharakah",
+      "sukuk",
+      "takaful",
+      "pakistan-banking",
+      "gulf-banking",
+      "fintech"
+    ],
+    "language": ["en", "ur"],
+    "platforms": ["vercel", "local"],
+    "requirements": {
+      "node": ">=18",
+      "python": ">=3.8"
+    },
+    "pricing": {
+      "model": "free",
+      "currency": "PKR",
+      "plans": [
+        {
+          "name": "Free Tier",
+          "price": 0,
+          "period": "forever",
+          "features": [
+            "Unlimited chat queries",
+            "10 product skills",
+            "6 jurisdiction overlays",
+            "Zakat calculator",
+            "Shariah compliance checker",
+            "Bilingual Urdu/English"
+          ]
+        }
+      ]
+    },
+    "install": {
+      "method": "clone",
+      "url": "https://github.com/AliRaza192/islamic-banking-fte"
+    },
+    "skills": [
+      "skills/islamic-finance-router/SKILL.md",
+      "skills/murabaha-specialist/SKILL.md",
+      "skills/zakat-advisor/SKILL.md",
+      "skills/ijara-specialist/SKILL.md",
+      "skills/musharakah-mudarabah-specialist/SKILL.md",
+      "skills/sukuk-takaful-specialist/SKILL.md",
+      "skills/shariah-compliance-checker/SKILL.md",
+      "skills/halal-calculator/SKILL.md",
+      "skills/islamic-product-explainer/SKILL.md",
+      "skills/pakistan-banking-navigator/SKILL.md",
+      "skills/islamic-banking-advisor/SKILL.md"
+    ],
+    "commands": [
+      "commands/calculate.md",
+      "commands/check-halal.md",
+      "commands/zakat.md",
+      "commands/compare-products.md"
+    ],
+    "hooks": "hooks/hooks.json",
+    "references": [
+      "references/products.md",
+      "references/calculations.md",
+      "references/pakistan-banks.md",
+      "references/shariah-rules.md",
+      "references/nisab-table.md",
+      "references/faqs.md"
+    ]
+  },
+  "marketplace": {
+    "listed": true,
+    "featured": false,
+    "rating": 0,
+    "reviews": 0,
+    "installs": 0,
+    "last_updated": "2026-05-30",
+    "changelog_url": "https://github.com/AliRaza192/islamic-banking-fte/blob/main/CHANGELOG.md"
+  }
+}

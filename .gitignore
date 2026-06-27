@@ -1,0 +1,102 @@
+# ============================================
+# Islamic Banking FTE — .gitignore
+# ============================================
+
+# --- SECRETS (NEVER COMMIT) ---
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.production.local
+*.pem
+*.key
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+.eggs/
+.venv/
+venv/
+ENV/
+env/
+.python-version
+*.pyc
+*.pyo
+*.pyd
+
+# --- Node.js ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+*.log
+
+# --- Vercel ---
+.vercel/
+.next/
+out/
+
+# --- Claude Code (local session state) ---
+.claude/settings.local.json
+
+# --- VS Code (keep workspace settings, ignore personal) ---
+.vscode/settings.json
+.vscode/*.code-workspace
+!.vscode/extensions.json
+!.vscode/launch.json
+
+# --- OS files ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V4
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# --- Testing ---
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+coverage/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+
+# --- Database (local dev only) ---
+*.sqlite
+*.sqlite3
+*.db
+
+# --- Temporary files ---
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.#*
+
+# --- Response dumps ---
+response.json

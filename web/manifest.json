@@ -1,0 +1,37 @@
+{
+  "name": "Islamic Banking FTE — Shariah Finance AI",
+  "short_name": "IB FTE",
+  "description": "Pakistan's Islamic Banking AI Assistant — Murabaha, Zakat, Halal checks in Urdu & English",
+  "start_url": "/chat",
+  "display": "standalone",
+  "background_color": "#060E0A",
+  "theme_color": "#1a4731",
+  "orientation": "portrait-primary",
+  "lang": "ur",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Chat", "url": "/chat", "description": "Islamic Banking AI Chat" },
+    { "name": "Calculators", "url": "/calculators", "description": "Halal Finance Calculators" },
+    { "name": "Compare Banks", "url": "/banks", "description": "Pakistani Islamic Banks" }
+  ],
+  "categories": ["finance", "education"]
+}

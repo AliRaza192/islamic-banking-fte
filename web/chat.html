@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="stylesheet" href="style.css" />
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#1a4731" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="IB-FTE" />
+
+    <!-- SEO -->
+    <meta
+      name="description"
+      content="Pakistan's Islamic Banking AI Assistant — Shariah-compliant finance guidance, Murabaha calculator, Zakat calculator in Urdu & English."
+    />
+    <title>Islamic Banking FTE 🕌</title>
+  </head>
+  <body>
+    <div class="app">
+      <!-- MOBILE HEADER (sirf mobile pe dikhta hai) -->
+      <div class="mobile-header">
+        <button class="hamburger" id="hamburgerBtn">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="mobile-title">
+          <span>🕌</span>
+          <span>Islamic Banking FTE</span>
+        </div>
+        <div class="mobile-header-right">
+          <button class="clear-btn-mobile" id="clearBtnMobile">New Chat</button>
+          <button class="login-btn-mobile" id="mobileLoginBtn">Login</button>
+          <div
+            class="mobile-user-info"
+            id="mobileUserInfo"
+            style="display: none"
+          >
+            <span class="user-email"></span>
+            <button class="clear-btn-mobile" id="mobileLogoutBtn">
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR OVERLAY (mobile pe tap se band hota hai) -->
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <span class="logo">🕌</span>
+          <div>
+            <div class="brand-name">Islamic Banking FTE</div>
+            <div class="brand-sub">بسم الله الرحمن الرحيم</div>
+          </div>
+          <!-- Mobile close button -->
+          <button class="sidebar-close" id="sidebarClose">✕</button>
+        </div>
+
+        <div class="quick-commands">
+          <div class="section-label">Quick Commands</div>
+          <button class="cmd-btn" data-cmd="/calculate murabaha">
+            📊 Calculate Murabaha
+          </button>
+          <button class="cmd-btn" data-cmd="/calculate zakat">
+            🌙 Calculate Zakat
+          </button>
+          <button class="cmd-btn" data-cmd="/check-halal">
+            ✅ Check Halal
+          </button>
+          <button class="cmd-btn" data-cmd="/compare murabaha ijara">
+            ⚖️ Compare Products
+          </button>
+        </div>
+
+        <div class="quick-commands" style="margin-top: 1rem">
+          <div class="section-label">Ask About</div>
+          <button class="cmd-btn" data-cmd="What is Murabaha financing?">
+            Murabaha
+          </button>
+          <button class="cmd-btn" data-cmd="What is Ijara leasing?">
+            Ijara
+          </button>
+          <button class="cmd-btn" data-cmd="What is Diminishing Musharakah?">
+            Musharakah
+          </button>
+          <button class="cmd-btn" data-cmd="How does Takaful work?">
+            Takaful
+          </button>
+          <button
+            class="cmd-btn"
+            data-cmd="Which Islamic bank is best in Pakistan?"
+          >
+            Best Bank?
+          </button>
+        </div>
+
+        <div class="quick-commands" style="margin-top: 1rem">
+          <div class="section-label">Tools</div>
+          <a href="/calculators" class="cmd-btn sidebar-link">🧮 Calculators</a>
+          <a href="/banks" class="cmd-btn sidebar-link">🏦 Banks Directory</a>
+        </div>
+
+        <div class="quick-commands" style="margin-top: 1rem">
+          <div class="section-label">Account</div>
+          <a href="pricing.html" class="cmd-btn sidebar-link"
+            >💎 Pricing Plans</a
+          >
+          <a href="dashboard.html" class="cmd-btn sidebar-link"
+            >📊 My Dashboard</a
+          >
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="disclaimer-small">
+            ⚠️ Educational purposes only.<br />Not a Fatwa or financial advice.
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN CHAT -->
+      <main class="chat-area">
+        <!-- Desktop header -->
+        <header class="chat-header desktop-header">
+          <div class="header-left">
+            <span class="status-dot"></span>
+            <span>Islamic Banking Assistant</span>
+          </div>
+          <div class="header-right">
+            <span class="model-badge">Gemini 2.5 Flash</span>
+            <button
+              class="clear-btn"
+              id="urduToggle"
+              title="Urdu script toggle"
+            >
+              اردو
+            </button>
+            <button class="clear-btn" id="clearBtn">New Chat</button>
+            <button class="login-btn" id="loginBtn">Login</button>
+            <div class="user-info" id="userInfo" style="display: none">
+              <span class="tier-badge tier-free">free</span>
+              <span class="user-email"></span>
+              <button class="clear-btn" id="logoutBtn">Logout</button>
+            </div>
+          </div>
+        </header>
+
+        <div class="upgrade-bar" id="upgradeBar">
+          <span
+            >⚡ Free plan: <strong id="queriesLeft">5</strong> queries/day
+            remaining</span
+          >
+          <a href="pricing.html">Upgrade to Premium →</a>
+        </div>
+
+        <div class="messages" id="messages"></div>
+        <div class="input-area">
+          <div class="input-wrapper">
+            <textarea
+              id="userInput"
+              placeholder="Ask about Islamic banking... / اسلامی بینکنگ کے بارے میں پوچھیں..."
+              rows="1"
+            ></textarea>
+            <button class="voice-btn" id="voiceBtn" title="Voice Input (Urdu/English)" aria-label="Voice input">
+            🎤
+          </button>
+            <button id="sendBtn" class="send-btn">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
+          <div class="input-footer">
+            <span class="input-hint"
+              >Press Enter to send · Shift+Enter for new line</span
+            >
+            <span class="char-count" id="charCount"></span>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+      <div class="modal">
+        <button class="modal-close" id="loginModalClose">&times;</button>
+        <div class="modal-icon">🕌</div>
+        <h2 class="modal-title">Login to Islamic Banking FTE</h2>
+        <p class="modal-subtitle">
+          Enter your email to receive a verification code
+        </p>
+
+        <div id="emailStep">
+          <input
+            type="email"
+            id="loginEmail"
+            class="modal-input"
+            placeholder="your@email.com"
+            autocomplete="email"
+          />
+          <button class="modal-btn" id="emailSubmitBtn">
+            Send Verification Code
+          </button>
+        </div>
+
+        <div id="otpStep" style="display: none">
+          <p class="otp-info">Code sent to <strong id="otpEmail"></strong></p>
+          <input
+            type="text"
+            id="loginOTP"
+            class="modal-input"
+            placeholder="Enter 6-digit code"
+            maxlength="6"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+          />
+          <button class="modal-btn" id="otpSubmitBtn">Verify & Login</button>
+          <button class="modal-link" id="backToEmail">
+            &larr; Change email
+          </button>
+        </div>
+
+        <p class="modal-error" id="loginError"></p>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+    <script>
+      // Mobile sidebar toggle
+      const hamburgerBtn = document.getElementById("hamburgerBtn");
+      const sidebarClose = document.getElementById("sidebarClose");
+      const sidebarOverlay = document.getElementById("sidebarOverlay");
+      const sidebar = document.getElementById("sidebar");
+      const clearBtnMobile = document.getElementById("clearBtnMobile");
+      const clearBtn = document.getElementById("clearBtn");
+
+      function openSidebar() {
+        sidebar.classList.add("open");
+        sidebarOverlay.classList.add("show");
+      }
+      function closeSidebar() {
+        sidebar.classList.remove("open");
+        sidebarOverlay.classList.remove("show");
+      }
+
+      hamburgerBtn?.addEventListener("click", openSidebar);
+      sidebarClose?.addEventListener("click", closeSidebar);
+      sidebarOverlay?.addEventListener("click", closeSidebar);
+
+      // Close sidebar when command button clicked on mobile
+      document.querySelectorAll(".cmd-btn").forEach((btn) => {
+        btn.addEventListener("click", closeSidebar);
+      });
+
+      // Mobile new chat button
+      clearBtnMobile?.addEventListener("click", () => {
+        document.getElementById("clearBtn").click();
+      });
+
+      // 1. URDU TOGGLE
+      const urduToggleBtn = document.getElementById("urduToggle");
+      let urduMode = localStorage.getItem("ib_urdu") === "true";
+      function applyUrduMode(on) {
+        document.body.classList.toggle("urdu-mode", on);
+        if (urduToggleBtn)
+          urduToggleBtn.style.background = on ? "var(--green-mid)" : "";
+        if (urduToggleBtn) urduToggleBtn.style.color = on ? "white" : "";
+      }
+      applyUrduMode(urduMode);
+      urduToggleBtn?.addEventListener("click", () => {
+        urduMode = !urduMode;
+        localStorage.setItem("ib_urdu", urduMode);
+        applyUrduMode(urduMode);
+      });
+
+      // 2. URL QUERY PARAM — ?q=... se auto-send
+      window.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const q = params.get("q");
+        if (q) {
+          // URL clean karo
+          window.history.replaceState({}, "", "/chat");
+          // Thodi delay de taake welcome message aajaye
+          setTimeout(() => {
+            const input = document.getElementById("userInput");
+            if (input) {
+              input.value = q;
+              document.getElementById("sendBtn")?.click();
+            }
+          }, 400);
+        }
+      });
+
+      // 3. CHARACTER COUNTER
+      document
+        .getElementById("userInput")
+        ?.addEventListener("input", function () {
+          const len = this.value.length;
+          const el = document.getElementById("charCount");
+          if (el) {
+            el.textContent = len > 100 ? `${len}/2000` : "";
+            el.className =
+              "char-count" +
+              (len > 1800 ? " limit" : len > 1500 ? " warn" : "");
+          }
+        });
+
+      // Character counter
+    </script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js").catch(() => {});
+      }
+    </script>
+  </body>
+</html>

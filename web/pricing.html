@@ -1,0 +1,997 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pricing — Islamic Banking FTE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --gold: #c9a84c;
+        --gold-light: #e8c97a;
+        --gold-dim: #8a6c2a;
+        --emerald: #0a6640;
+        --emerald-mid: #0d8050;
+        --emerald-glow: #16a362;
+        --ink: #060e0a;
+        --white: #f5f2ea;
+        --white-dim: #bdb8a8;
+        --radius: 14px;
+        --radius-lg: 22px;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--ink);
+        color: var(--white);
+        font-family: "DM Sans", sans-serif;
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+      }
+      .bg-glow-1 {
+        position: fixed;
+        width: 700px;
+        height: 700px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(10, 102, 64, 0.14) 0%,
+          transparent 70%
+        );
+        top: -200px;
+        left: -200px;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .bg-glow-2 {
+        position: fixed;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(201, 168, 76, 0.08) 0%,
+          transparent 70%
+        );
+        bottom: 0;
+        right: -100px;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* NAV */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 48px;
+        background: rgba(6, 14, 10, 0.85);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(201, 168, 76, 0.1);
+      }
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+      }
+      .nav-logo-icon {
+        width: 34px;
+        height: 34px;
+        background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+        border-radius: 9px;
+        display: grid;
+        place-items: center;
+        font-size: 16px;
+      }
+      .nav-logo-text {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: var(--white);
+      }
+      .nav-logo-text span {
+        color: var(--gold);
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .nav-link {
+        color: var(--white-dim);
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color 0.2s;
+      }
+      .nav-link:hover {
+        color: var(--gold-light);
+      }
+      .nav-btn {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--white);
+        padding: 8px 18px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: background 0.2s;
+      }
+      .nav-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      /* HERO */
+      .hero {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 80px 24px 60px;
+      }
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(201, 168, 76, 0.1);
+        border: 1px solid rgba(201, 168, 76, 0.25);
+        border-radius: 100px;
+        padding: 6px 18px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--gold-light);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 28px;
+      }
+      .hero-title {
+        font-family: "Cormorant Garamond", serif;
+        font-size: clamp(2.2rem, 5vw, 3.5rem);
+        font-weight: 700;
+        line-height: 1.1;
+        margin-bottom: 16px;
+      }
+      .hero-title .gold {
+        color: var(--gold);
+      }
+      .hero-sub {
+        color: var(--white-dim);
+        font-size: 1.05rem;
+        font-weight: 300;
+        max-width: 480px;
+        margin: 0 auto 40px;
+        line-height: 1.7;
+      }
+
+      /* TOGGLE */
+      .toggle-wrap {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 56px;
+      }
+      .toggle {
+        display: inline-flex;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 100px;
+        padding: 4px;
+      }
+      .toggle-btn {
+        padding: 9px 28px;
+        border-radius: 100px;
+        border: none;
+        background: transparent;
+        color: var(--white-dim);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: all 0.2s;
+      }
+      .toggle-btn.active {
+        background: var(--emerald-mid);
+        color: #fff;
+      }
+      .save-badge {
+        background: rgba(22, 163, 98, 0.15);
+        border: 1px solid rgba(22, 163, 98, 0.3);
+        color: var(--emerald-glow);
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 100px;
+        margin-left: 6px;
+        vertical-align: middle;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* PRICING GRID */
+      .pricing-wrap {
+        position: relative;
+        z-index: 1;
+      }
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 24px;
+        align-items: start;
+      }
+      .price-card {
+        background: rgba(15, 30, 22, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: var(--radius-lg);
+        padding: 36px 32px;
+        position: relative;
+        transition:
+          transform 0.3s,
+          border-color 0.3s;
+      }
+      .price-card:hover {
+        transform: translateY(-4px);
+      }
+      .price-card.popular {
+        border-color: rgba(201, 168, 76, 0.3);
+        background: rgba(201, 168, 76, 0.04);
+      }
+      .popular-tag {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+        color: var(--ink);
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 4px 14px;
+        border-radius: 100px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .tier-mono {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.68rem;
+        font-weight: 500;
+        color: var(--gold);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        display: block;
+      }
+      .plan-name {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 1.7rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+      }
+      .price-row {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+        margin-bottom: 6px;
+      }
+      .price-symbol {
+        font-size: 1rem;
+        color: var(--white-dim);
+        font-weight: 300;
+      }
+      .price-num {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 3rem;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--white);
+      }
+      .price-per {
+        font-size: 0.85rem;
+        color: var(--white-dim);
+      }
+      .price-pkr {
+        font-size: 0.78rem;
+        color: rgba(201, 168, 76, 0.65);
+        font-family: "JetBrains Mono", monospace;
+        margin-bottom: 24px;
+      }
+
+      .divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.06);
+        margin: 22px 0;
+      }
+
+      .features {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+        margin-bottom: 28px;
+      }
+      .features li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.875rem;
+        line-height: 1.4;
+      }
+      .features li .check {
+        width: 18px;
+        height: 18px;
+        border-radius: 5px;
+        background: rgba(10, 102, 64, 0.25);
+        display: grid;
+        place-items: center;
+        font-size: 0.65rem;
+        color: var(--emerald-glow);
+        flex-shrink: 0;
+        margin-top: 1px;
+        font-weight: 700;
+      }
+      .features li .cross {
+        width: 18px;
+        height: 18px;
+        border-radius: 5px;
+        background: rgba(255, 255, 255, 0.04);
+        display: grid;
+        place-items: center;
+        font-size: 0.6rem;
+        color: rgba(255, 255, 255, 0.15);
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .features li.dim {
+        color: rgba(255, 255, 255, 0.2);
+      }
+
+      .cta-btn {
+        width: 100%;
+        padding: 14px;
+        border-radius: var(--radius);
+        border: none;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+      }
+      .cta-btn:disabled {
+        opacity: 0.5;
+        cursor: default;
+        transform: none !important;
+      }
+      .cta-green {
+        background: linear-gradient(135deg, var(--emerald), var(--emerald-mid));
+        color: #fff;
+        box-shadow: 0 4px 20px rgba(10, 102, 64, 0.3);
+        margin-bottom: 10px;
+      }
+      .cta-green:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 28px rgba(10, 102, 64, 0.4);
+      }
+      .cta-gold {
+        background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+        color: var(--ink);
+        box-shadow: 0 4px 20px rgba(201, 168, 76, 0.2);
+        margin-bottom: 10px;
+      }
+      .cta-gold:hover:not(:disabled) {
+        transform: translateY(-1px);
+      }
+      .cta-outline {
+        background: transparent;
+        color: var(--white-dim);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .cta-outline:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .cta-current {
+        background: rgba(255, 255, 255, 0.04);
+        color: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        cursor: default;
+      }
+
+      /* PAYMENT METHODS */
+      .payment-section {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 60px 24px 0;
+      }
+      .payment-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--white-dim);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+        display: block;
+      }
+      .payment-chips {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .payment-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(15, 30, 22, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        padding: 10px 18px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--white-dim);
+      }
+
+      /* FAQ */
+      .faq-section {
+        position: relative;
+        z-index: 1;
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 80px 24px 60px;
+      }
+      .faq-title {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .faq-item {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .faq-q {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 0;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: var(--white);
+        transition: color 0.2s;
+      }
+      .faq-q:hover {
+        color: var(--gold-light);
+      }
+      .faq-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        display: grid;
+        place-items: center;
+        font-size: 0.75rem;
+        color: var(--white-dim);
+        flex-shrink: 0;
+        transition: transform 0.2s;
+      }
+      .faq-item.open .faq-icon {
+        transform: rotate(45deg);
+        background: rgba(201, 168, 76, 0.1);
+        color: var(--gold);
+      }
+      .faq-a {
+        max-height: 0;
+        overflow: hidden;
+        transition:
+          max-height 0.35s ease,
+          padding 0.2s;
+        color: var(--white-dim);
+        font-size: 0.875rem;
+        line-height: 1.7;
+        font-weight: 300;
+      }
+      .faq-item.open .faq-a {
+        max-height: 200px;
+        padding-bottom: 18px;
+      }
+
+      /* GUARANTEE */
+      .guarantee {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 0 24px 80px;
+      }
+      .guarantee-box {
+        max-width: 600px;
+        margin: 0 auto;
+        background: rgba(15, 30, 22, 0.5);
+        border: 1px solid rgba(201, 168, 76, 0.15);
+        border-radius: var(--radius-lg);
+        padding: 40px;
+      }
+      .guarantee-icon {
+        font-size: 2.5rem;
+        margin-bottom: 16px;
+        display: block;
+      }
+      .guarantee-title {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+      .guarantee-desc {
+        color: var(--white-dim);
+        font-size: 0.9rem;
+        font-weight: 300;
+        line-height: 1.7;
+      }
+
+      /* TOAST */
+      .toast {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        z-index: 9999;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        animation: toastIn 0.3s ease;
+      }
+      .toast.success {
+        background: linear-gradient(135deg, #0a6640, #0d8050);
+        color: #fff;
+      }
+      .toast.error {
+        background: linear-gradient(135deg, #8a1a1a, #c02020);
+        color: #fff;
+      }
+      @keyframes toastIn {
+        from {
+          opacity: 0;
+          transform: translateX(-50%) translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+
+      @media (max-width: 768px) {
+        nav {
+          padding: 14px 20px;
+        }
+        .pricing-grid {
+          grid-template-columns: 1fr;
+          max-width: 420px;
+        }
+        .hero {
+          padding: 60px 20px 40px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+
+    <nav>
+      <a href="/" class="nav-logo">
+        <div class="nav-logo-icon">🕌</div>
+        <span class="nav-logo-text">Islamic Banking <span>FTE</span></span>
+      </a>
+      <div class="nav-right">
+        <a href="/" class="nav-link">Chat</a>
+        <a href="/dashboard.html" class="nav-link">Dashboard</a>
+        <a href="/" class="nav-btn">← Back to Chat</a>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-badge">
+        💎 Transparent · No hidden fees · Cancel anytime
+      </div>
+      <h1 class="hero-title">
+        Start Free.<br />Upgrade <span class="gold">When Ready.</span>
+      </h1>
+      <p class="hero-sub">
+        Full Shariah-compliant AI on every plan. Upgrade for more queries,
+        faster responses, and professional features.
+      </p>
+    </div>
+
+    <!-- TOGGLE -->
+    <div class="toggle-wrap">
+      <div class="toggle">
+        <button class="toggle-btn active" onclick="setMode('monthly', this)">
+          Monthly
+        </button>
+        <button class="toggle-btn" onclick="setMode('yearly', this)">
+          Yearly <span class="save-badge">SAVE 20%</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="pricing-wrap">
+      <div class="pricing-grid">
+        <!-- FREE -->
+        <div class="price-card" id="card-free">
+          <span class="tier-mono">Starter</span>
+          <div class="plan-name">Free</div>
+          <div class="price-row">
+            <span class="price-symbol">$</span>
+            <span class="price-num">0</span>
+            <span class="price-per">/ forever</span>
+          </div>
+          <div class="price-pkr">PKR 0 — No card needed</div>
+          <div class="divider"></div>
+          <ul class="features">
+            <li><span class="check">✓</span> 5 queries per day</li>
+            <li><span class="check">✓</span> All 16 AI specialist skills</li>
+            <li><span class="check">✓</span> 13 jurisdictions</li>
+            <li><span class="check">✓</span> Urdu + Arabic support</li>
+            <li class="dim"><span class="cross">—</span> Unlimited queries</li>
+            <li class="dim"><span class="cross">—</span> Priority responses</li>
+            <li class="dim"><span class="cross">—</span> PDF export</li>
+          </ul>
+          <button
+            class="cta-btn cta-outline"
+            id="freeBtn"
+            onclick="handlePlan('free')"
+          >
+            Get Started Free
+          </button>
+        </div>
+
+        <!-- PREMIUM -->
+        <div class="price-card popular" id="card-premium">
+          <div class="popular-tag">⭐ Most Popular</div>
+          <span class="tier-mono">Premium</span>
+          <div class="plan-name">Premium</div>
+          <div class="price-row">
+            <span class="price-symbol">$</span>
+            <span class="price-num" id="premiumPrice">5</span>
+            <span class="price-per">/ month</span>
+          </div>
+          <div class="price-pkr" id="premiumPkr">
+            PKR 1,500 / month · Stripe or JazzCash
+          </div>
+          <div class="divider"></div>
+          <ul class="features">
+            <li><span class="check">✓</span> 100 queries per day</li>
+            <li><span class="check">✓</span> All 16 AI specialist skills</li>
+            <li><span class="check">✓</span> 13 jurisdictions</li>
+            <li><span class="check">✓</span> Urdu + Arabic support</li>
+            <li><span class="check">✓</span> Priority AI responses</li>
+            <li><span class="check">✓</span> Full conversation history</li>
+            <li class="dim"><span class="cross">—</span> PDF export</li>
+          </ul>
+          <button
+            class="cta-btn cta-gold"
+            id="premiumBtn"
+            onclick="handlePlan('premium', 'stripe')"
+          >
+            Subscribe with Card
+          </button>
+        </div>
+
+        <!-- PROFESSIONAL -->
+        <div class="price-card" id="card-pro">
+          <span class="tier-mono">Enterprise</span>
+          <div class="plan-name">Professional</div>
+          <div class="price-row">
+            <span class="price-symbol">$</span>
+            <span class="price-num" id="proPrice">50</span>
+            <span class="price-per">/ month</span>
+          </div>
+          <div class="price-pkr" id="proPkr">
+            PKR 15,000 / month · For banks &amp; fintechs
+          </div>
+          <div class="divider"></div>
+          <ul class="features">
+            <li><span class="check">✓</span> Unlimited queries</li>
+            <li><span class="check">✓</span> All 16 AI specialist skills</li>
+            <li><span class="check">✓</span> 13 jurisdictions</li>
+            <li><span class="check">✓</span> Urdu + Arabic support</li>
+            <li><span class="check">✓</span> Fastest AI responses</li>
+            <li><span class="check">✓</span> Full conversation history</li>
+            <li><span class="check">✓</span> PDF + Excel export</li>
+          </ul>
+          <button
+            class="cta-btn cta-green"
+            id="proBtn"
+            onclick="handlePlan('professional', 'stripe')"
+          >
+            Subscribe with Card
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENT METHODS -->
+    <div class="payment-section">
+      <span class="payment-label">Accepted Payment Methods</span>
+      <div class="payment-chips">
+        <div class="payment-chip">💳 Visa / Mastercard</div>
+        <div class="payment-chip">💳 Debit Card</div>
+        <div class="payment-chip">🔒 256-bit SSL Encrypted</div>
+        <div class="payment-chip">↩ 7-day refund</div>
+      </div>
+    </div>
+
+    <!-- GUARANTEE -->
+    <div class="guarantee" style="padding-top: 60px">
+      <div class="guarantee-box">
+        <span class="guarantee-icon">🛡️</span>
+        <div class="guarantee-title">7-Day Money-Back Guarantee</div>
+        <div class="guarantee-desc">
+          Not satisfied? Contact us within 7 days of your first payment for a
+          full refund — no questions asked. We're confident you'll love it.
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="faq-section">
+      <div class="faq-title">Frequently Asked Questions</div>
+
+      <div class="faq-item">
+        <div
+          class="faq-q"
+          onclick="this.parentElement.classList.toggle('open')"
+        >
+          Can I cancel anytime?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          Yes, cancel anytime — no lock-in. You keep access until the end of
+          your billing period. No cancellation fee.
+        </div>
+      </div>
+      <div class="faq-item">
+        <div
+          class="faq-q"
+          onclick="this.parentElement.classList.toggle('open')"
+        >
+          Is the Free plan really free forever?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          Yes. The Free plan is permanent — 5 queries/day, all 16 skills, no
+          credit card ever required. Upgrade only if you need more.
+        </div>
+      </div>
+      <div class="faq-item">
+        <div
+          class="faq-q"
+          onclick="this.parentElement.classList.toggle('open')"
+        >
+          Is this a Fatwa or official financial advice?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          No. This is an educational AI tool based on AAOIFI standards. Always
+          consult your bank's Shariah Advisor or a qualified Islamic scholar for
+          binding rulings.
+        </div>
+      </div>
+      <div class="faq-item">
+        <div
+          class="faq-q"
+          onclick="this.parentElement.classList.toggle('open')"
+        >
+          What is JazzCash payment? When will it be available?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          JazzCash is a Pakistani mobile wallet. We are working on integrating
+          it for Pakistani users — it will be available soon. For now, you can
+          pay with any Visa or Mastercard.
+        </div>
+      </div>
+      <div class="faq-item">
+        <div
+          class="faq-q"
+          onclick="this.parentElement.classList.toggle('open')"
+        >
+          Can my company / bank get a custom plan?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">
+          Yes! The Professional plan includes white-label widget access. For
+          custom enterprise contracts, volume pricing, or API integrations,
+          contact us directly.
+        </div>
+      </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+      let currentMode = "monthly";
+
+      function setMode(mode, btn) {
+        currentMode = mode;
+        document
+          .querySelectorAll(".toggle-btn")
+          .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        if (mode === "yearly") {
+          document.getElementById("premiumPrice").textContent = "4";
+          document.getElementById("premiumPkr").textContent =
+            "PKR 1,200 / month (billed annually)";
+          document.getElementById("proPrice").textContent = "40";
+          document.getElementById("proPkr").textContent =
+            "PKR 12,000 / month (billed annually)";
+        } else {
+          document.getElementById("premiumPrice").textContent = "5";
+          document.getElementById("premiumPkr").textContent =
+            "PKR 1,500 / month · Stripe or JazzCash";
+          document.getElementById("proPrice").textContent = "50";
+          document.getElementById("proPkr").textContent =
+            "PKR 15,000 / month · For banks & fintechs";
+        }
+      }
+
+      function showToast(msg, type) {
+        const t = document.createElement("div");
+        t.className = `toast ${type}`;
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 5000);
+      }
+
+      async function handlePlan(tier, provider) {
+        if (tier === "free") {
+          window.location.href = AUTH.isLoggedIn() ? "/" : "#";
+          if (!AUTH.isLoggedIn()) AUTH.showModal();
+          return;
+        }
+
+        if (!AUTH.isLoggedIn()) {
+          AUTH.showModal();
+          return;
+        }
+
+        const btnId = tier === "premium" ? "premiumBtn" : "proBtn";
+        const btn = document.getElementById(btnId);
+        const orig = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Redirecting...";
+
+        try {
+          const res = await fetch("/api/payments/create-checkout", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${AUTH.getToken()}`,
+            },
+            body: JSON.stringify({ tier, provider: provider || "stripe" }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Checkout failed");
+
+          if (data.provider === "jazzcash" && data.params) {
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = data.form_action;
+            for (const [k, v] of Object.entries(data.params)) {
+              const inp = document.createElement("input");
+              inp.type = "hidden";
+              inp.name = k;
+              inp.value = v;
+              form.appendChild(inp);
+            }
+            document.body.appendChild(form);
+            form.submit();
+          } else {
+            window.location.href = data.checkout_url;
+          }
+        } catch (err) {
+          showToast(err.message, "error");
+          btn.disabled = false;
+          btn.textContent = orig;
+        }
+      }
+
+      // Customer Portal — manage/cancel subscription
+      async function openCustomerPortal() {
+        if (!AUTH.isLoggedIn()) { AUTH.showModal(); return; }
+        const btn = event?.target || document.activeElement;
+        const origText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Opening...";
+        try {
+          const res = await fetch("/api/payments/portal", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${AUTH.getToken()}` }
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Could not open portal");
+          window.location.href = data.portal_url;
+        } catch (err) {
+          showToast(err.message, "error");
+          btn.disabled = false;
+          btn.textContent = origText;
+        }
+      }
+
+      // URL param toast
+      const p = new URLSearchParams(window.location.search);
+      if (p.get("payment") === "success")
+        showToast("🎉 Payment successful! Your plan is now active.", "success");
+      if (p.get("payment") === "cancelled")
+        showToast("Payment cancelled. You can try again anytime.", "error");
+      if (p.get("payment"))
+        window.history.replaceState({}, "", "/pricing.html");
+
+      // Mark current plan buttons
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = AUTH.getUser();
+        if (!user) return;
+        if (user.tier === "free") {
+          const b = document.getElementById("freeBtn");
+          b.textContent = "✓ Current Plan";
+          b.className = "cta-btn cta-current";
+          b.disabled = true;
+        }
+        if (user.tier === "premium") {
+          const b = document.getElementById("premiumBtn");
+          b.textContent = "✓ Current Plan";
+          b.className = "cta-btn cta-current";
+          b.disabled = true;
+          const mg = document.createElement("button");
+          mg.textContent = "Manage / Cancel →";
+          mg.className = "cta-btn";
+          mg.style.cssText = "margin-top:.5rem;background:none;border:1.5px solid rgba(255,255,255,.3);font-size:.78rem";
+          mg.addEventListener("click", openCustomerPortal);
+          b.parentNode.appendChild(mg);
+        }
+        if (user.tier === "professional") {
+          const b = document.getElementById("proBtn");
+          b.textContent = "✓ Current Plan";
+          b.className = "cta-btn cta-current";
+          b.disabled = true;
+          const mg = document.createElement("button");
+          mg.textContent = "Manage / Cancel →";
+          mg.className = "cta-btn";
+          mg.style.cssText = "margin-top:.5rem;background:none;border:1.5px solid rgba(255,255,255,.3);font-size:.78rem";
+          mg.addEventListener("click", openCustomerPortal);
+          b.parentNode.appendChild(mg);
+        }
+      });
+    </script>
+  </body>
+</html>

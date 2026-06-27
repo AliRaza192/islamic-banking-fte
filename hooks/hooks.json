@@ -1,0 +1,25 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Assalamu Alaikum! The Islamic Banking Digital FTE plugin (v1.0.0) is active. Capabilities: 10 product skills (murabaha, ijarah, musharakah, mudarabah, sukuk, takaful, zakat, shariah screening, halal calculator, product explainer), 6 jurisdiction overlays (Pakistan, UAE, Saudi Arabia, Malaysia, Bahrain, Kuwait), 4 slash commands (/calculate, /check-halal, /zakat, /compare). The router auto-activates on any Islamic banking query. Default jurisdiction: Pakistan. $ARGUMENTS"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Check if this output involves Islamic finance. If it does NOT contain Islamic finance content, respond with just 'OK'. If it DOES contain Islamic finance content, verify these 3 rules: (1) Profit/interest terminology is correct — NEVER use 'interest income', 'interest rate', 'loan', 'lender', 'borrower', 'coupon'. Use 'profit rate', 'financing', 'financier', 'customer', 'profit distribution' instead. (2) Shariah compliance is properly flagged — any item requiring SSB review must be explicitly flagged, not silently resolved. (3) The GOVERNING FRAMEWORK / PRODUCT / JURISDICTION header is present at the start of the response. Report: OK if all pass, or list specific violations. $ARGUMENTS"
+          }
+        ]
+      }
+    ]
+  }
+}
