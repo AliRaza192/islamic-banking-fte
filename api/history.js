@@ -1,6 +1,9 @@
 // api/history.js
 // User ki conversation history fetch karta hai
-import { neon } from '@neondatabase/serverless';
+import { neonConfig, Pool } from '@neondatabase/serverless';
+import ws from 'ws';
+
+neonConfig.webSocketConstructor = ws;
 import jwt from 'jsonwebtoken';
 
 const ALLOWED_ORIGINS = [
@@ -38,7 +41,8 @@ export default async function handler(req, res) {
   }
 
   if (!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' });
-  const sql = neon(DATABASE_URL);
+  const pool = new Pool({ connectionString: DATABASE_URL });
+  const sql = pool;
 
   // DELETE — single session delete
   if (req.method === 'DELETE') {

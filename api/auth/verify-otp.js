@@ -1,5 +1,8 @@
-import { neon } from '@neondatabase/serverless';
+import { neonConfig, Pool } from '@neondatabase/serverless';
+import ws from 'ws';
 import jwt from 'jsonwebtoken';
+
+neonConfig.webSocketConstructor = ws;
 
 const ALLOWED_ORIGINS = [
   'https://islamic-banking-fte.vercel.app',
@@ -25,7 +28,8 @@ export default async function handler(req, res) {
   if (!JWT_SECRET) return res.status(500).json({ error: 'JWT_SECRET not configured' });
   if (!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' });
 
-  const sql = neon(DATABASE_URL);
+  const pool = new Pool({ connectionString: DATABASE_URL });
+  const sql = pool;
 
   try {
     const { email, code } = req.body || {};
@@ -81,7 +85,7 @@ export default async function handler(req, res) {
     const token = jwt.sign(
       { userId: user.id, email: user.email, tier: user.tier },
       JWT_SECRET,
-      { expiresIn: '30d' }
+      { expiresIn: '7d' }
     );
 
     return res.status(200).json({

@@ -1,5 +1,8 @@
-import { neon } from "@neondatabase/serverless";
+import { neonConfig, Pool } from "@neondatabase/serverless";
+import ws from "ws";
 import crypto from "crypto";
+
+neonConfig.webSocketConstructor = ws;
 
 const ALLOWED_ORIGINS = [
   "https://islamic-banking-fte.vercel.app",
@@ -32,7 +35,8 @@ export default async function handler(req, res) {
   if (!DATABASE_URL)
     return res.status(500).json({ error: "DATABASE_URL not configured" });
 
-  const sql = neon(DATABASE_URL);
+  const pool = new Pool({ connectionString: DATABASE_URL });
+  const sql = pool;
 
   try {
     const { email } = req.body || {};

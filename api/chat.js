@@ -1,4 +1,7 @@
-import { neon } from "@neondatabase/serverless";
+import { neonConfig, Pool } from "@neondatabase/serverless";
+import ws from "ws";
+
+neonConfig.webSocketConstructor = ws;
 import jwt from "jsonwebtoken";
 import { readFileSync, existsSync } from "fs";
 import { join } from "path";
@@ -55,7 +58,7 @@ function detectSkill(userMessage) {
 
   // 4. Salam (FAS 7) — BEFORE generic sukuk/takaful
   if (
-    msg.includes("salam") ||
+    /\bsalam\b/i.test(msg) ||
     msg.includes("سلم") ||
     msg.includes("forward sale") ||
     msg.includes("advance payment") ||
@@ -580,7 +583,8 @@ export default async function handler(req, res) {
   if (!GEMINI_KEY)
     return res.status(500).json({ error: "GEMINI_API_KEY not configured" });
 
-  const sql = DATABASE_URL ? neon(DATABASE_URL) : null;
+  const pool = DATABASE_URL ? new Pool({ connectionString: DATABASE_URL }) : null;
+  const sql = pool;
 
   try {
     // 1. Validate input

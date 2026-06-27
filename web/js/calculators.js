@@ -142,7 +142,7 @@ const IslamicCalc = {
     receivables    = 0,  // Money others owe you
     liabilities    = 0,  // Debts you must pay NOW
     // Live rates injected from /api/rates, fallback to June 2026 estimates
-    goldRatePerTola   = (window._liveRates?.gold_pkr_per_tola)   || 210000,
+    goldRatePerTola   = (window._liveRates?.gold_pkr_per_tola)   || 330000,
     silverRatePerTola = (window._liveRates?.silver_pkr_per_tola) || 2450,
   }) {
     const GOLD_RATE_PER_TOLA   = goldRatePerTola;

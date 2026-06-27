@@ -13,7 +13,7 @@ const ALLOWED_ORIGINS = [
 // Fallback rates (updated manually quarterly)
 const FALLBACK = {
   gold_pkr_per_tola:   330000,  // ~PKR 330,000 per tola (June 2026 estimate)
-  silver_pkr_per_tola: 310,     // ~PKR 310/tola (June 2026). Update quarterly.
+  silver_pkr_per_tola: 2450,    // ~PKR 2,450/tola (June 2026). Update quarterly.
   usd_pkr:             280,     // ~USD/PKR June 2026
   source:              'fallback',
   updated:             '2026-06-12',

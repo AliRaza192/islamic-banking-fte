@@ -8,6 +8,7 @@ Then open: http://localhost:8000
 
 import os
 import json
+import re
 import hmac as _hmac
 import hashlib
 import base64
@@ -89,7 +90,7 @@ def detect_skill(user_message):
         return 'zakat-advisor'
     if any(k in msg for k in ['ijara', 'ijarah', 'lease', 'kiraya', 'rent-to-own']):
         return 'ijara-specialist'
-    if any(k in msg for k in ['salam', 'forward sale', 'advance payment', 'crop financing', 'agricultural financ']):
+    if re.search(r'\bsalam\b', msg, re.IGNORECASE) or any(k in msg for k in ['forward sale', 'advance payment', 'crop financing', 'agricultural financ']):
         return 'salam-specialist'
     if any(k in msg for k in ['istisna', 'construction financ', 'manufacturing financ', 'home construction', 'milestone payment']):
         return 'istisna-a-specialist'

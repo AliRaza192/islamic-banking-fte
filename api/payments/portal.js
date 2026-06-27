@@ -2,7 +2,10 @@
 // Stripe Customer Portal — user apna subscription manage/cancel kar sakta hai
 import Stripe from 'stripe';
 import jwt from 'jsonwebtoken';
-import { neon } from '@neondatabase/serverless';
+import { neonConfig, Pool } from '@neondatabase/serverless';
+import ws from 'ws';
+
+neonConfig.webSocketConstructor = ws;
 
 const ALLOWED_ORIGINS = [
   'https://islamic-banking-fte.vercel.app',
@@ -28,7 +31,8 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Login required' });
     }
     const decoded = jwt.verify(authHeader.slice(7), JWT_SECRET);
-    const sql = neon(DATABASE_URL);
+    const pool = new Pool({ connectionString: DATABASE_URL });
+    const sql = pool;
 
     // Get user's Stripe customer ID from subscriptions
     const subs = await sql`

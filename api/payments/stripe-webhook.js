@@ -1,5 +1,8 @@
 import Stripe from 'stripe';
-import { neon } from '@neondatabase/serverless';
+import { neonConfig, Pool } from '@neondatabase/serverless';
+import ws from 'ws';
+
+neonConfig.webSocketConstructor = ws;
 
 // Disable body parsing — Stripe needs raw body for signature verification
 export const config = { api: { bodyParser: false } };
@@ -26,7 +29,8 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid signature' });
   }
 
-  const sql = DATABASE_URL ? neon(DATABASE_URL) : null;
+  const pool = DATABASE_URL ? new Pool({ connectionString: DATABASE_URL }) : null;
+  const sql = pool;
   if (!sql) return res.status(200).json({ received: true });
 
   try {

@@ -3,7 +3,10 @@
 // Protected by ADMIN_PASSWORD env var (set in Vercel)
 // Usage: GET /api/admin — requires "Authorization: Bearer <password>" header
 
-import { neon } from '@neondatabase/serverless';
+import { neonConfig, Pool } from '@neondatabase/serverless';
+import ws from 'ws';
+
+neonConfig.webSocketConstructor = ws;
 
 const ALLOWED_ORIGINS = [
   'https://islamic-banking-fte.vercel.app',
@@ -34,7 +37,8 @@ export default async function handler(req, res) {
 
   if (!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' });
 
-  const sql = neon(DATABASE_URL);
+  const pool = new Pool({ connectionString: DATABASE_URL });
+  const sql = pool;
 
   try {
     // Run all stats queries in parallel
