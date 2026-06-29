@@ -1,9 +1,6 @@
 import Stripe from 'stripe';
 import jwt from 'jsonwebtoken';
-import { neonConfig, Pool } from '@neondatabase/serverless';
-import ws from 'ws';
-
-neonConfig.webSocketConstructor = ws;
+import { neon } from '@neondatabase/serverless';
 
 const ALLOWED_ORIGINS = [
   'https://islamic-banking-fte.vercel.app',
@@ -56,8 +53,7 @@ export default async function handler(req, res) {
     }
 
     const tier = session.metadata?.tier || 'premium';
-    const pool = new Pool({ connectionString: DATABASE_URL });
-    const sql = (strings, ...vals) => pool.query(strings, vals).then(r => r.rows);
+    const sql = neon(DATABASE_URL);
 
     // Update user tier
     await sql`UPDATE users SET tier = ${tier}, updated_at = NOW() WHERE id = ${user.userId}`;

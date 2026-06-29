@@ -1,8 +1,5 @@
-import { neonConfig, Pool } from '@neondatabase/serverless';
-import ws from 'ws';
+import { neon } from '@neondatabase/serverless';
 import jwt from 'jsonwebtoken';
-
-neonConfig.webSocketConstructor = ws;
 
 const ALLOWED_ORIGINS = [
   'https://islamic-banking-fte.vercel.app',
@@ -45,8 +42,7 @@ export default async function handler(req, res) {
     }
 
     const decoded = jwt.verify(authHeader.slice(7), JWT_SECRET);
-    const pool = new Pool({ connectionString: DATABASE_URL });
-    const sql = (strings, ...vals) => pool.query(strings, vals).then(r => r.rows);
+    const sql = neon(DATABASE_URL);
 
     const userRows = await sql`
       SELECT id, email, tier, queries_today, queries_date FROM users

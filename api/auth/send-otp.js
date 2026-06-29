@@ -1,5 +1,4 @@
-import { neonConfig, Pool } from "@neondatabase/serverless";
-import ws from "ws";
+import { neon } from "@neondatabase/serverless";
 import crypto from "crypto";
 
 neonConfig.webSocketConstructor = ws;
@@ -44,14 +43,13 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "Database not configured. Please contact support." });
   }
 
-  let pool;
+  let sql;
   try {
-    pool = new Pool({ connectionString: DATABASE_URL });
+    sql = neon(DATABASE_URL);
   } catch (poolErr) {
-    console.error("send-otp: Failed to create database pool:", poolErr.message);
+    console.error("send-otp: Failed to connect to database:", poolErr.message);
     return res.status(500).json({ error: "Database connection failed. Please try again later." });
   }
-  const sql = (strings, ...vals) => pool.query(strings, vals).then(r => r.rows);
 
   try {
     const { email } = req.body || {};
@@ -129,8 +127,5 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error("send-otp error:", err.message, err.stack);
     return res.status(500).json({ error: "Internal server error. Please try again later." });
-  } finally {
-    // Always close the pool to prevent memory leaks
-    try { await pool.end(); } catch {}
   }
 }

@@ -1,4 +1,4 @@
-import { neonConfig, Pool } from "@neondatabase/serverless";
+import { neonConfig, neon } from "@neondatabase/serverless";
 import ws from "ws";
 
 neonConfig.webSocketConstructor = ws;
@@ -615,12 +615,7 @@ export default async function handler(req, res) {
   if (!GEMINI_KEY)
     return res.status(500).json({ error: "GEMINI_API_KEY not configured" });
 
-  const pool = DATABASE_URL
-    ? new Pool({ connectionString: DATABASE_URL })
-    : null;
-  const sql = pool
-    ? (strings, ...vals) => pool.query(strings, vals).then(r => r.rows)
-    : null;
+  const sql = DATABASE_URL ? neon(DATABASE_URL) : null;
 
   try {
     // 1. Validate input

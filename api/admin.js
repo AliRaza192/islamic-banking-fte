@@ -3,8 +3,7 @@
 // Protected by ADMIN_PASSWORD env var (set in Vercel)
 // Usage: GET /api/admin — requires "Authorization: Bearer <password>" header
 
-import { neonConfig, Pool } from '@neondatabase/serverless';
-import ws from 'ws';
+import { neon } from '@neondatabase/serverless';
 
 neonConfig.webSocketConstructor = ws;
 
@@ -40,8 +39,7 @@ export default async function handler(req, res) {
 
   if (!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' });
 
-  const pool = new Pool({ connectionString: DATABASE_URL });
-  const sql = (strings, ...vals) => pool.query(strings, vals).then(r => r.rows);
+  const sql = neon(DATABASE_URL);
 
   try {
     // Run all stats queries in parallel

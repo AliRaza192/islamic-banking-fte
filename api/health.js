@@ -1,7 +1,4 @@
-import { neonConfig, Pool } from '@neondatabase/serverless';
-import ws from 'ws';
-
-neonConfig.webSocketConstructor = ws;
+import { neon } from "@neondatabase/serverless";
 
 export default async function handler(req, res) {
   const origin = req.headers.origin;
@@ -34,16 +31,13 @@ export default async function handler(req, res) {
   };
 
   if (DATABASE_URL) {
-    let pool;
     try {
-      pool = new Pool({ connectionString: DATABASE_URL });
-      await pool.query('SELECT 1');
+      const sql = neon(DATABASE_URL);
+      await sql`SELECT 1`;
       checks.database = true;
     } catch (err) {
       checks.database = false;
       checks.db_error = err.message;
-    } finally {
-      try { await pool?.end(); } catch {}
     }
   }
 

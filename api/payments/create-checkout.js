@@ -1,9 +1,6 @@
-import { neonConfig, Pool } from '@neondatabase/serverless';
-import ws from 'ws';
+import { neon } from '@neondatabase/serverless';
 import jwt from 'jsonwebtoken';
 import Stripe from 'stripe';
-
-neonConfig.webSocketConstructor = ws;
 
 const ALLOWED_ORIGINS = [
   'https://islamic-banking-fte.vercel.app',
@@ -55,10 +52,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid tier. Choose "premium" or "professional".' });
     }
 
-    const pool = DATABASE_URL ? new Pool({ connectionString: DATABASE_URL }) : null;
-    const sql = pool
-      ? (strings, ...vals) => pool.query(strings, vals).then(r => r.rows)
-      : null;
+    const sql = DATABASE_URL ? neon(DATABASE_URL) : null;
 
     // ---- STRIPE ----
     if (!provider || provider === 'stripe') {
