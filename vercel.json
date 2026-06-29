@@ -11,79 +11,42 @@
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        }
+        { "key": "X-Content-Type-Options",  "value": "nosniff" },
+        { "key": "X-Frame-Options",          "value": "SAMEORIGIN" },
+        { "key": "X-XSS-Protection",         "value": "1; mode=block" },
+        { "key": "Referrer-Policy",          "value": "strict-origin-when-cross-origin" }
       ]
     },
     {
       "source": "/api/(.*)",
       "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-store, no-cache"
-        }
+        { "key": "Cache-Control", "value": "no-store, no-cache" }
       ]
     },
     {
       "source": "/(.*\\.js|.*\\.css)",
       "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     }
   ],
   "rewrites": [
-    {
-      "source": "/",
-      "destination": "/landing.html"
-    },
-    {
-      "source": "/landing",
-      "destination": "/landing.html"
-    },
-    {
-      "source": "/chat",
-      "destination": "/chat.html"
-    },
-    {
-      "source": "/app",
-      "destination": "/chat.html"
-    },
-    {
-      "source": "/dashboard",
-      "destination": "/dashboard.html"
-    },
-    {
-      "source": "/pricing",
-      "destination": "/pricing.html"
-    },
-    {
-      "source": "/calculators",
-      "destination": "/calculators.html"
-    },
-    {
-      "source": "/banks",
-      "destination": "/banks.html"
-    },
-    {
-      "source": "/admin",
-      "destination": "/admin.html"
-    }
+    { "source": "/api/chat",            "destination": "/api/chat.js" },
+    { "source": "/api/auth/send-otp",   "destination": "/api/auth/send-otp.js" },
+    { "source": "/api/auth/verify-otp", "destination": "/api/auth/verify-otp.js" },
+    { "source": "/api/me",              "destination": "/api/me.js" },
+    { "source": "/api/rates",           "destination": "/api/rates.js" },
+    { "source": "/api/stripe/webhook",  "destination": "/api/stripe/webhook.js" },
+    { "source": "/api/stripe/checkout", "destination": "/api/stripe/checkout.js" },
+
+    { "source": "/",            "destination": "/landing.html" },
+    { "source": "/landing",     "destination": "/landing.html" },
+    { "source": "/chat",        "destination": "/chat.html" },
+    { "source": "/app",         "destination": "/chat.html" },
+    { "source": "/dashboard",   "destination": "/dashboard.html" },
+    { "source": "/pricing",     "destination": "/pricing.html" },
+    { "source": "/calculators", "destination": "/calculators.html" },
+    { "source": "/banks",       "destination": "/banks.html" },
+    { "source": "/admin",       "destination": "/admin.html" }
   ]
 }

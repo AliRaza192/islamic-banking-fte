@@ -590,8 +590,8 @@ export default async function handler(req, res) {
   ];
 
   // Always set CORS headers
-  if (ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
+  if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin || "*");
   } else if (origin) {
     // Fallback: allow the requesting origin if not blocked
     res.setHeader("Access-Control-Allow-Origin", origin);
@@ -615,7 +615,9 @@ export default async function handler(req, res) {
   if (!GEMINI_KEY)
     return res.status(500).json({ error: "GEMINI_API_KEY not configured" });
 
-  const pool = DATABASE_URL ? new Pool({ connectionString: DATABASE_URL }) : null;
+  const pool = DATABASE_URL
+    ? new Pool({ connectionString: DATABASE_URL })
+    : null;
   const sql = pool;
 
   try {
@@ -726,7 +728,10 @@ export default async function handler(req, res) {
 
     // Update remaining count for response header (after increment)
     const newCount = (count ?? 0) + 1;
-    const newRemaining = TIER_LIMITS[tier] === Infinity ? "unlimited" : Math.max(0, TIER_LIMITS[tier] - newCount);
+    const newRemaining =
+      TIER_LIMITS[tier] === Infinity
+        ? "unlimited"
+        : Math.max(0, TIER_LIMITS[tier] - newCount);
     res.setHeader("X-RateLimit-Remaining", newRemaining);
 
     // 6. Save bot reply + shariah audit log
