@@ -588,7 +588,12 @@ export default async function handler(req, res) {
     "http://localhost:8000",
     "http://localhost:3000",
   ];
+
+  // Always set CORS headers
   if (ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  } else if (origin) {
+    // Fallback: allow the requesting origin if not blocked
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -597,6 +602,8 @@ export default async function handler(req, res) {
     "Access-Control-Expose-Headers",
     "X-RateLimit-Remaining, X-RateLimit-Tier, X-RateLimit-Limit",
   );
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });

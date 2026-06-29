@@ -1,11 +1,11 @@
 {
   "version": 2,
   "functions": {
-  "api/**/*.js": {
-    "memory": 512,
-    "maxDuration": 30
-  }
-},
+    "api/**/*.js": {
+      "memory": 512,
+      "maxDuration": 30
+    }
+  },
   "outputDirectory": "web",
   "headers": [
     {
@@ -84,58 +84,6 @@
     {
       "source": "/admin",
       "destination": "/admin.html"
-    },
-    {
-      "source": "/api/health",
-      "destination": "/api/health.js"
-    },
-    {
-      "source": "/api/chat",
-      "destination": "/api/chat.js"
-    },
-    {
-      "source": "/api/rates",
-      "destination": "/api/rates.js"
-    },
-    {
-      "source": "/api/admin",
-      "destination": "/api/admin.js"
-    },
-    {
-      "source": "/api/auth/send-otp",
-      "destination": "/api/auth/send-otp.js"
-    },
-    {
-      "source": "/api/auth/verify-otp",
-      "destination": "/api/auth/verify-otp.js"
-    },
-    {
-      "source": "/api/auth/me",
-      "destination": "/api/auth/me.js"
-    },
-    {
-      "source": "/sw.js",
-      "destination": "/sw.js"
-    },
-    {
-      "source": "/api/history",
-      "destination": "/api/history.js"
-    },
-    {
-      "source": "/manifest.json",
-      "destination": "/manifest.json"
-    },
-    {
-      "source": "/api/payments/create-checkout",
-      "destination": "/api/payments/create-checkout.js"
-    },
-    {
-      "source": "/api/payments/stripe-webhook",
-      "destination": "/api/payments/stripe-webhook.js"
-    },
-    {
-      "source": "/api/payments/verify",
-      "destination": "/api/payments/verify.js"
     }
   ]
 }
