@@ -34,14 +34,16 @@ export default async function handler(req, res) {
   };
 
   if (DATABASE_URL) {
+    let pool;
     try {
-      const pool = new Pool({ connectionString: DATABASE_URL });
-      const sql = pool;
-      await sql`SELECT 1`;
+      pool = new Pool({ connectionString: DATABASE_URL });
+      await pool.query('SELECT 1');
       checks.database = true;
     } catch (err) {
       checks.database = false;
       checks.db_error = err.message;
+    } finally {
+      try { await pool?.end(); } catch {}
     }
   }
 
