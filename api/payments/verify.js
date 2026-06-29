@@ -57,7 +57,7 @@ export default async function handler(req, res) {
 
     const tier = session.metadata?.tier || 'premium';
     const pool = new Pool({ connectionString: DATABASE_URL });
-    const sql = pool;
+    const sql = (strings, ...vals) => pool.query(strings, vals).then(r => r.rows);
 
     // Update user tier
     await sql`UPDATE users SET tier = ${tier}, updated_at = NOW() WHERE id = ${user.userId}`;

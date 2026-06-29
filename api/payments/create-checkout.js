@@ -56,7 +56,9 @@ export default async function handler(req, res) {
     }
 
     const pool = DATABASE_URL ? new Pool({ connectionString: DATABASE_URL }) : null;
-    const sql = pool;
+    const sql = pool
+      ? (strings, ...vals) => pool.query(strings, vals).then(r => r.rows)
+      : null;
 
     // ---- STRIPE ----
     if (!provider || provider === 'stripe') {

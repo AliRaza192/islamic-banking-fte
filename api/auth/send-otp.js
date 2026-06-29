@@ -51,7 +51,7 @@ export default async function handler(req, res) {
     console.error("send-otp: Failed to create database pool:", poolErr.message);
     return res.status(500).json({ error: "Database connection failed. Please try again later." });
   }
-  const sql = pool;
+  const sql = (strings, ...vals) => pool.query(strings, vals).then(r => r.rows);
 
   try {
     const { email } = req.body || {};

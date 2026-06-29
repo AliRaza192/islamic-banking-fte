@@ -42,7 +42,7 @@ export default async function handler(req, res) {
 
   if (!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' });
   const pool = new Pool({ connectionString: DATABASE_URL });
-  const sql = pool;
+  const sql = (strings, ...vals) => pool.query(strings, vals).then(r => r.rows);
 
   // DELETE — single session delete
   if (req.method === 'DELETE') {
