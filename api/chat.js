@@ -495,6 +495,7 @@ function verifyToken(authHeader) {
 }
 
 // ---- Rate Limiting (tiered) ----
+// CHECK first (no increment), then INCREMENT after successful response
 async function checkRateLimit(sql, ip, user) {
   const tier = user?.tier || "anonymous";
   const limit = TIER_LIMITS[tier];
@@ -511,40 +512,64 @@ async function checkRateLimit(sql, ip, user) {
         UPDATE users SET queries_today = 0, queries_date = ${today}
         WHERE id = ${user.userId} AND queries_date < ${today}::date
       `;
-      // Increment
+      // READ current count (no increment yet)
       const rows = await sql`
-        UPDATE users SET queries_today = queries_today + 1
-        WHERE id = ${user.userId}
-        RETURNING queries_today
+        SELECT queries_today FROM users WHERE id = ${user.userId}
       `;
-      const count = rows[0]?.queries_today ?? 1;
+      const count = rows[0]?.queries_today ?? 0;
       const remaining = Math.max(0, limit - count);
-      return { allowed: count <= limit, remaining, tier, count };
+      return { allowed: count < limit, remaining, tier, count };
     } catch (err) {
       console.error("User rate limit error:", err.message);
       return { allowed: false, remaining: 0, tier };
     }
   }
 
-  // Anonymous: track by IP (existing logic)
+  // Anonymous: track by IP
   if (!sql) return { allowed: false, remaining: 0, tier };
   try {
+    // READ current count first (no increment)
+    const rows = await sql`
+      SELECT req_count FROM rate_limits
+      WHERE ip = ${ip} AND req_date = CURRENT_DATE
+    `;
+    const count = rows[0]?.req_count ?? 0;
+    const remaining = Math.max(0, limit - count);
+
+    if (count >= limit) {
+      return { allowed: false, remaining: 0, tier, count };
+    }
+
+    return { allowed: true, remaining, tier, count };
+  } catch (err) {
+    console.error("Rate limit check error:", err.message);
+    return { allowed: false, remaining: 0, tier };
+  }
+}
+
+// ---- Increment Rate Limit (called AFTER successful response) ----
+async function incrementRateLimit(sql, ip, user) {
+  try {
+    if (!sql) return;
+
+    // Authenticated user
+    if (user && user.userId) {
+      await sql`
+        UPDATE users SET queries_today = queries_today + 1
+        WHERE id = ${user.userId}
+      `;
+      return;
+    }
+
+    // Anonymous: track by IP
     await sql`
       INSERT INTO rate_limits (ip, req_date, req_count)
       VALUES (${ip}, CURRENT_DATE, 1)
       ON CONFLICT (ip, req_date)
       DO UPDATE SET req_count = rate_limits.req_count + 1
     `;
-    const rows = await sql`
-      SELECT req_count FROM rate_limits
-      WHERE ip = ${ip} AND req_date = CURRENT_DATE
-    `;
-    const count = rows[0]?.req_count ?? 1;
-    const remaining = Math.max(0, limit - count);
-    return { allowed: count <= limit, remaining, tier, count };
   } catch (err) {
-    console.error("Rate limit error:", err.message);
-    return { allowed: false, remaining: 0, tier };
+    console.error("Rate limit increment error:", err.message);
   }
 }
 
@@ -595,7 +620,7 @@ export default async function handler(req, res) {
     // 2. Auth + rate limit check
     const clientIP = getClientIP(req);
     const user = verifyToken(req.headers.authorization);
-    const { allowed, remaining, tier } = await checkRateLimit(
+    const { allowed, remaining, tier, count } = await checkRateLimit(
       sql,
       clientIP,
       user,
@@ -688,6 +713,14 @@ export default async function handler(req, res) {
     }
 
     const data = await geminiRes.json();
+
+    // 5b. Increment rate limit ONLY after successful Gemini response
+    await incrementRateLimit(sql, clientIP, user);
+
+    // Update remaining count for response header (after increment)
+    const newCount = (count ?? 0) + 1;
+    const newRemaining = TIER_LIMITS[tier] === Infinity ? "unlimited" : Math.max(0, TIER_LIMITS[tier] - newCount);
+    res.setHeader("X-RateLimit-Remaining", newRemaining);
 
     // 6. Save bot reply + shariah audit log
     const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text;

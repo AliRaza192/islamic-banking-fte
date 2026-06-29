@@ -25,10 +25,22 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { JWT_SECRET, DATABASE_URL } = process.env;
-  if (!JWT_SECRET) return res.status(500).json({ error: 'JWT_SECRET not configured' });
-  if (!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' });
+  if (!JWT_SECRET) {
+    console.error("verify-otp: JWT_SECRET is not set");
+    return res.status(500).json({ error: 'Authentication service not configured. Please contact support.' });
+  }
+  if (!DATABASE_URL) {
+    console.error("verify-otp: DATABASE_URL is not set");
+    return res.status(500).json({ error: 'Database not configured. Please contact support.' });
+  }
 
-  const pool = new Pool({ connectionString: DATABASE_URL });
+  let pool;
+  try {
+    pool = new Pool({ connectionString: DATABASE_URL });
+  } catch (poolErr) {
+    console.error("verify-otp: Failed to create database pool:", poolErr.message);
+    return res.status(500).json({ error: 'Database connection failed. Please try again later.' });
+  }
   const sql = pool;
 
   try {
@@ -99,7 +111,9 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
-    console.error('verify-otp error:', err.message);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('verify-otp error:', err.message, err.stack);
+    return res.status(500).json({ error: 'Internal server error. Please try again later.' });
+  } finally {
+    try { await pool.end(); } catch {}
   }
 }

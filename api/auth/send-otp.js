@@ -30,12 +30,24 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
 
   const { RESEND_API_KEY, DATABASE_URL } = process.env;
-  if (!RESEND_API_KEY)
-    return res.status(500).json({ error: "RESEND_API_KEY not configured" });
-  if (!DATABASE_URL)
-    return res.status(500).json({ error: "DATABASE_URL not configured" });
 
-  const pool = new Pool({ connectionString: DATABASE_URL });
+  // Detailed env check for debugging
+  if (!RESEND_API_KEY) {
+    console.error("send-otp: RESEND_API_KEY is not set in environment variables");
+    return res.status(500).json({ error: "Email service not configured. Please contact support." });
+  }
+  if (!DATABASE_URL) {
+    console.error("send-otp: DATABASE_URL is not set in environment variables");
+    return res.status(500).json({ error: "Database not configured. Please contact support." });
+  }
+
+  let pool;
+  try {
+    pool = new Pool({ connectionString: DATABASE_URL });
+  } catch (poolErr) {
+    console.error("send-otp: Failed to create database pool:", poolErr.message);
+    return res.status(500).json({ error: "Database connection failed. Please try again later." });
+  }
   const sql = pool;
 
   try {
@@ -97,15 +109,25 @@ export default async function handler(req, res) {
 
     if (!resendRes.ok) {
       const errText = await resendRes.text();
-      console.error("Resend error:", errText);
-      return res.status(500).json({ error: "Failed to send email" });
+      console.error("Resend API error:", resendRes.status, errText);
+      // Don't expose internal error details to user
+      if (resendRes.status === 403) {
+        return res.status(500).json({ error: "Email service authentication failed. Please contact support." });
+      }
+      if (resendRes.status === 422) {
+        return res.status(500).json({ error: "Invalid email configuration. Please contact support." });
+      }
+      return res.status(500).json({ error: "Failed to send verification email. Please try again later." });
     }
 
     return res
       .status(200)
       .json({ success: true, message: "OTP sent to your email" });
   } catch (err) {
-    console.error("send-otp error:", err.message);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error("send-otp error:", err.message, err.stack);
+    return res.status(500).json({ error: "Internal server error. Please try again later." });
+  } finally {
+    // Always close the pool to prevent memory leaks
+    try { await pool.end(); } catch {}
   }
 }
