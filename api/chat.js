@@ -625,7 +625,22 @@ export default async function handler(req, res) {
 
     // 2. Auth + rate limit check
     const clientIP = getClientIP(req);
-    const user = verifyToken(req.headers.authorization);
+    let user = verifyToken(req.headers.authorization);
+
+    // Fetch actual tier from DB (JWT tier may be stale after upgrade)
+    if (user && sql) {
+      try {
+        const dbUser = await sql`
+          SELECT id, email, tier FROM users WHERE id = ${user.userId}
+        `;
+        if (dbUser.length > 0) {
+          user = { ...user, tier: dbUser[0].tier, userId: dbUser[0].id, email: dbUser[0].email };
+        }
+      } catch (err) {
+        console.error("Fetch user tier error:", err.message);
+      }
+    }
+
     const { allowed, remaining, tier, count } = await checkRateLimit(
       sql,
       clientIP,
