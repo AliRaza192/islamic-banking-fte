@@ -526,7 +526,7 @@ async function checkRateLimit(sql, ip, user) {
   }
 
   // Anonymous: track by IP
-  if (!sql) return { allowed: false, remaining: 0, tier };
+  if (!sql) return { allowed: true, remaining: 5, tier };
   try {
     // READ current count first (no increment)
     const rows = await sql`
@@ -541,10 +541,10 @@ async function checkRateLimit(sql, ip, user) {
     }
 
     return { allowed: true, remaining, tier, count };
-  } catch (err) {
-    console.error("Rate limit check error:", err.message);
-    return { allowed: false, remaining: 0, tier };
-  }
+    } catch (err) {
+      console.error("Rate limit check error:", err.message);
+      return { allowed: true, remaining: 5, tier };
+    }
 }
 
 // ---- Increment Rate Limit (called AFTER successful response) ----

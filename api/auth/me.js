@@ -1,5 +1,8 @@
-import { neon } from '@neondatabase/serverless';
+import { neonConfig, neon } from '@neondatabase/serverless';
+import ws from 'ws';
 import jwt from 'jsonwebtoken';
+
+neonConfig.webSocketConstructor = ws;
 
 const ALLOWED_ORIGINS = [
   'https://islamic-banking-fte.vercel.app',

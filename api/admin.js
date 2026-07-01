@@ -3,7 +3,8 @@
 // Protected by ADMIN_PASSWORD env var (set in Vercel)
 // Usage: GET /api/admin — requires "Authorization: Bearer <password>" header
 
-import { neon } from '@neondatabase/serverless';
+import { neonConfig, neon } from '@neondatabase/serverless';
+import ws from 'ws';
 
 neonConfig.webSocketConstructor = ws;
 

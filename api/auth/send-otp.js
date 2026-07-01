@@ -1,4 +1,5 @@
-import { neon } from "@neondatabase/serverless";
+import { neonConfig, neon } from "@neondatabase/serverless";
+import ws from "ws";
 import crypto from "crypto";
 
 neonConfig.webSocketConstructor = ws;
