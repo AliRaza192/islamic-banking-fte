@@ -81,8 +81,20 @@ window.addEventListener("DOMContentLoaded", () => {
   showWelcome();
   setupEventListeners();
 
-  // Show upgrade bar for anonymous users with default limit
-  if (typeof AUTH === "undefined" || !AUTH.isLoggedIn()) {
+  // Check auth state and update upgrade bar
+  if (typeof AUTH !== "undefined" && AUTH.isLoggedIn()) {
+    // Logged-in user: fetch fresh data from server, then hide/show bar
+    AUTH.getMe().then((user) => {
+      if (user) {
+        AUTH.updateUI();
+        const limit = user.queries_limit === "unlimited" ? Infinity : parseInt(user.queries_limit);
+        const used = user.queries_today || 0;
+        const remaining = limit === Infinity ? null : Math.max(0, limit - used);
+        updateUpgradeBar(remaining, user.tier);
+      }
+    }).catch(() => {});
+  } else {
+    // Anonymous: show default free bar
     updateUpgradeBar(5, "free");
   }
 });
