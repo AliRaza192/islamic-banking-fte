@@ -221,6 +221,12 @@ async function handleSend() {
   const rawInput = userInputEl.value.trim();
   if (!rawInput || sendBtnEl.disabled) return;
 
+  // Client-side input validation
+  if (rawInput.length > 2000) {
+    appendMessage("bot", '<span style="color:#c0392b">⚠️ Message too long — please keep under 2000 characters.</span>');
+    return;
+  }
+
   const parsed = parseCommand(rawInput);
 
   appendMessage("user", escapeHtml(rawInput));
@@ -242,13 +248,25 @@ async function handleSend() {
     setThinking(false);
     appendMessage("bot", formatResponse(reply));
     conversationHistory.push({ role: "model", parts: [{ text: reply }] });
+
+    // Client-side disclaimer check — warn if financial response missing disclaimer
+    const hasDisclaimer =
+      reply.includes("Shariah Disclaimer") ||
+      reply.includes("شرعی نوٹ") ||
+      reply.includes("educational and guidance purposes");
+    if (!hasDisclaimer) {
+      console.warn("⚠️ Shariah disclaimer missing from AI response — server-side enforcement should catch this.");
+    }
   } catch (err) {
     removeTyping(typingId);
     setThinking(false);
-    appendMessage(
-      "bot",
-      `<span style="color:#c0392b">❌ Error: ${escapeHtml(err.message)}</span>`,
-    );
+    const errorMessages = {
+      "Failed to fetch": "Server se connection nahi ho pa raha. Internet check karein aur dubara try karein.",
+      "Empty response from AI": "AI ne koi jawab nahi diya. Thodi der baad dubara try karein.",
+      "NetworkError": "Network error — internet connection check karein.",
+    };
+    const userMsg = errorMessages[err.message] || `Error: ${escapeHtml(err.message)}`;
+    appendMessage("bot", `<span style="color:#c0392b">❌ ${userMsg}</span>`);
   }
 
   userInputEl.focus();
@@ -370,6 +388,12 @@ function formatResponse(text) {
   // Shariah disclaimer highlight box
   html = html.replace(
     /(⚠️ Shariah Disclaimer:[\s\S]*?)(?=\n\n|$)/g,
+    '<div class="disclaimer">$1</div>',
+  );
+
+  // Shariah disclaimer highlight box (Urdu)
+  html = html.replace(
+    /(⚠️ شرعی نوٹ:[\s\S]*?)(?=\n\n|$)/g,
     '<div class="disclaimer">$1</div>',
   );
 

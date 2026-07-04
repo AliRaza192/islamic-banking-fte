@@ -5,6 +5,7 @@
 
 import { neonConfig, neon } from '@neondatabase/serverless';
 import ws from 'ws';
+import crypto from 'crypto';
 
 neonConfig.webSocketConstructor = ws;
 
@@ -17,8 +18,6 @@ const ALLOWED_ORIGINS = [
 export default async function handler(req, res) {
   const origin = req.headers.origin;
   if (ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  } else if (origin) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -33,10 +32,40 @@ export default async function handler(req, res) {
   const { ADMIN_PASSWORD, DATABASE_URL } = process.env;
   if (!ADMIN_PASSWORD) return res.status(500).json({ error: 'ADMIN_PASSWORD not configured' });
 
+  // Rate limit: max 5 attempts per minute per IP
+  const clientIP = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
+  const now = Date.now();
+  const adminAttempts = globalThis._adminAttempts || (globalThis._adminAttempts = {});
+  const attempt = adminAttempts[clientIP] || { count: 0, resetAt: now + 60000 };
+
+  if (now > attempt.resetAt) {
+    attempt.count = 0;
+    attempt.resetAt = now + 60000;
+  }
+
+  if (attempt.count >= 5) {
+    return res.status(429).json({ error: 'Too many attempts. Try again in 1 minute.' });
+  }
+
   const authHeader = req.headers.authorization || '';
-  if (!authHeader.startsWith('Bearer ') || authHeader.slice(7) !== ADMIN_PASSWORD) {
+  const provided = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+
+  // Timing-safe comparison
+  let isValid = false;
+  if (provided && ADMIN_PASSWORD) {
+    const bufProvided = Buffer.from(provided.padEnd(128));
+    const bufExpected = Buffer.from(ADMIN_PASSWORD.padEnd(128));
+    isValid = crypto.timingSafeEqual(bufProvided, bufExpected);
+  }
+
+  if (!isValid) {
+    attempt.count++;
+    adminAttempts[clientIP] = attempt;
     return res.status(401).json({ error: 'Unauthorized' });
   }
+
+  // Reset attempts on success
+  adminAttempts[clientIP] = { count: 0, resetAt: attempt.resetAt };
 
   if (!DATABASE_URL) return res.status(500).json({ error: 'DATABASE_URL not configured' });
 

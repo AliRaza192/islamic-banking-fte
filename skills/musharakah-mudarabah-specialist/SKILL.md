@@ -65,39 +65,6 @@ Cr: Musharakah/Mudarabah Investment [Amount]
 - Bahrain: "Musharakah Income"
 - NEVER: "Interest Income" or "Return on Investment"
 
-## Diminishing Musharakah Calculation
-
-**Formula:**
-```
-Monthly Payment = Rental + Unit Purchase
-
-Rental = Bank's Current Share Value × Monthly Rate
-Monthly Rate = Annual Rate ÷ 12
-Unit Purchase = Fixed amount (reduces bank's share each month)
-```
-
-**Key Feature:** Total monthly payment DECREASES over time as bank's share
-reduces and rental base shrinks. (Unlike conventional fixed-payment mortgage.)
-
-## Output Format — Diminishing Musharakah
-```
-🏠 Diminishing Musharakah — Home Finance
-
-Property Value:      Rs. 10,000,000
-Your Share (20%):    Rs.  2,000,000
-Bank's Share (80%):  Rs.  8,000,000
-Annual Rate:         18%
-Monthly Rate:        1.5%
-Tenure:              10 years (120 months)
-
-Month 1:  Rental Rs.120,000 + Unit Purchase Rs.66,667 = Rs.186,667
-Month 12: Rental Rs.109,000 + Unit Purchase Rs.66,667 = Rs.175,667
-Month 60: Rental Rs. 61,000 + Unit Purchase Rs.66,667 = Rs.127,667
-Month 120: Last payment — you own 100%
-
-ADVANTAGE: Payment decreases every month as your ownership grows.
-```
-
 ## Mudarabah Deposit Explanation
 ```
 Your Savings Account → YOU are investor (Rab-ul-Maal)
@@ -108,7 +75,7 @@ No GUARANTEED rate — but consistently competitive
 ```
 
 ## When to Recommend Which Product
-- Home financing → Diminishing Musharakah ✅
+- Home financing → Diminishing Musharakah → use musharaka-dm skill ✅
 - Business working capital → Running Musharakah ✅
 - SME project financing → Musharakah ✅
 - Savings/deposits → Mudarabah ✅

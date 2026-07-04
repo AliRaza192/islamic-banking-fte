@@ -9,8 +9,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   metadata    JSONB DEFAULT '{}'
 );
 
--- Migration: agar table already exist karti hai
-ALTER TABLE sessions ADD COLUMN IF NOT EXISTS user_email TEXT;
+-- Migration: add index for fast session lookup
 CREATE INDEX IF NOT EXISTS idx_sessions_user_email ON sessions(user_email);
 
 -- 2. Messages table (har message)
@@ -71,8 +70,6 @@ CREATE TABLE IF NOT EXISTS otps (
   created_at  TIMESTAMP DEFAULT NOW()
 );
 
-ALTER TABLE otps ADD COLUMN IF NOT EXISTS failed_attempts INTEGER DEFAULT 0;
-
 -- 7. Subscriptions table (payments)
 CREATE TABLE IF NOT EXISTS subscriptions (
   id                      TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
@@ -82,7 +79,7 @@ CREATE TABLE IF NOT EXISTS subscriptions (
   provider_subscription_id TEXT,
   start_date              TIMESTAMP DEFAULT NOW(),
   end_date                TIMESTAMP,
-  status                  TEXT DEFAULT 'active' CHECK (status IN ('active', 'cancelled', 'expired', 'past_due', 'pending')),
+  status                  TEXT DEFAULT 'pending' CHECK (status IN ('active', 'cancelled', 'expired', 'past_due', 'pending')),
   created_at              TIMESTAMP DEFAULT NOW()
 );
 

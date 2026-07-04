@@ -49,7 +49,10 @@ export default async function handler(req, res) {
 
           // Send confirmation email via Resend
           const RESEND_KEY = process.env.RESEND_API_KEY;
-          const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev';
+          const FROM_EMAIL = process.env.FROM_EMAIL;
+          if (!FROM_EMAIL) {
+            console.warn("stripe-webhook: FROM_EMAIL not set — confirmation emails may fail. Set FROM_EMAIL in Vercel env vars.");
+          }
           const userEmail  = session.customer_email || session.customer_details?.email;
 
           if (RESEND_KEY && userEmail) {
@@ -58,7 +61,7 @@ export default async function handler(req, res) {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${RESEND_KEY}` },
               body: JSON.stringify({
-                from: `Islamic Banking FTE <${FROM_EMAIL}>`,
+                from: `Islamic Banking FTE <${FROM_EMAIL || 'onboarding@resend.dev'}>`,
                 to: [userEmail],
                 subject: `🎉 Welcome to ${tierLabel} — Islamic Banking FTE`,
                 html: `

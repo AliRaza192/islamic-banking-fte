@@ -14,8 +14,6 @@ function setCors(req, res) {
   const origin = req.headers.origin;
   if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
-  } else if (origin) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
   }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -85,6 +83,10 @@ export default async function handler(req, res) {
     `;
 
     // Send OTP via Resend
+    const FROM_EMAIL = process.env.FROM_EMAIL;
+    if (!FROM_EMAIL) {
+      console.warn("send-otp: FROM_EMAIL not set — using Resend sandbox. Emails will ONLY deliver to account owner. Set FROM_EMAIL in Vercel env vars.");
+    }
     const resendRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -92,7 +94,7 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: `Islamic Banking FTE <${process.env.FROM_EMAIL || "onboarding@resend.dev"}>`,
+        from: `Islamic Banking FTE <${FROM_EMAIL || "onboarding@resend.dev"}>`,
         to: [normalizedEmail],
         subject: "Your Verification Code — Islamic Banking FTE",
         html: `

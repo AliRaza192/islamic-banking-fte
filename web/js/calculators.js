@@ -108,16 +108,16 @@ const IslamicCalc = {
 
   // ---- IJARA (LEASING) ----
   // Bank asset khareedta hai, aapko lease pe deta hai
+  // Customer rental formula: Outstanding Investment × Monthly Rate
   ijara({ assetValue, rentalRate, tenureMonths, residualValuePct = 10 }) {
     const value    = parseFloat(assetValue);
     const rate     = parseFloat(rentalRate);
     const months   = parseInt(tenureMonths);
     const residual = value * (parseFloat(residualValuePct) / 100);
 
-    const depreciableAmount = value - residual;
-    const monthlyDepreciation = depreciableAmount / months;
-    const monthlyRentalIncome = (value * (rate / 100)) / 12;
-    const monthlyRent = monthlyDepreciation + monthlyRentalIncome;
+    // Customer pays rental on bank's investment (simplified: flat on full value)
+    // Real IMB would have decreasing rental as customer buys units
+    const monthlyRent = (value * (rate / 100)) / 12;
     const totalRent   = monthlyRent * months;
 
     return {

@@ -12,8 +12,6 @@ function setCors(req, res) {
   const origin = req.headers.origin;
   if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
-  } else if (origin) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
   }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -72,11 +70,11 @@ export default async function handler(req, res) {
         metadata: { userId: decoded.userId, email: decoded.email, tier },
       });
 
-      // Store subscription (default status = active, webhook updates if needed)
+      // Store subscription as pending — webhook will activate after payment
       if (sql) {
         await sql`
-          INSERT INTO subscriptions (user_id, tier, provider, provider_subscription_id)
-          VALUES (${decoded.userId}, ${tier}, 'stripe', ${session.id})
+          INSERT INTO subscriptions (user_id, tier, provider, provider_subscription_id, status)
+          VALUES (${decoded.userId}, ${tier}, 'stripe', ${session.id}, 'pending')
         `;
       }
 

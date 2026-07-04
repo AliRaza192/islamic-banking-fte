@@ -93,6 +93,33 @@ islamic-banking-fte/
 
 ## 🚀 Local Setup
 
+### Quick Start (5 minutes)
+
+```bash
+git clone https://github.com/AliRaza192/islamic-banking-fte.git
+cd islamic-banking-fte
+npm install
+cp .env.example .env.local
+# Fill in your keys in .env.local (see table below)
+vercel dev
+# Open http://localhost:3000
+```
+
+### Environment Variables Required
+
+| Variable | Where to Get | Required? |
+|---|---|---|
+| `GEMINI_API_KEY` | [aistudio.google.com](https://aistudio.google.com) | Yes |
+| `DATABASE_URL` | [neon.tech](https://neon.tech) (connection string) | Yes (for auth) |
+| `JWT_SECRET` | Run: `openssl rand -base64 48` | Yes |
+| `RESEND_API_KEY` | [resend.com](https://resend.com) | Yes (for OTP emails) |
+| `STRIPE_SECRET_KEY` | [dashboard.stripe.com](https://dashboard.stripe.com) | For payments |
+| `STRIPE_WEBHOOK_SECRET` | Stripe Dashboard → Developers → Webhooks | For payments |
+| `STRIPE_PRICE_PREMIUM` | Stripe Dashboard (price_* ID) | For payments |
+| `STRIPE_PRICE_PROFESSIONAL` | Stripe Dashboard (price_* ID) | For payments |
+| `ADMIN_PASSWORD` | Any strong random string | For admin dashboard |
+| `GOLD_API_KEY` | [goldapi.io](https://goldapi.io) (optional) | For live gold rates |
+
 ### Prerequisites
 - Node.js 18+
 - Vercel CLI: `npm i -g vercel`
@@ -122,7 +149,7 @@ DATABASE_URL=postgresql://neon-connection-string
 
 # Auth
 RESEND_API_KEY=re_your-key-here
-JWT_SECRET=your-random-32-char-string
+JWT_SECRET=your-random-64-char-string  # Generate: openssl rand -base64 48
 
 # Stripe Payments
 STRIPE_SECRET_KEY=sk_live_or_test_key

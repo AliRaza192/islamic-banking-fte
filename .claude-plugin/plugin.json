@@ -1,7 +1,7 @@
 {
   "name": "islamic-banking-fte",
-  "version": "1.0.0",
-  "description": "Production-grade Islamic Banking Digital FTE. 1 router skill + 10 product skills (murabaha, ijarah, musharakah, mudarabah, sukuk, takaful, zakat, shariah screening, halal calculator, product explainer), 6 jurisdiction overlays (Pakistan, UAE, Saudi Arabia, Malaysia, Bahrain, Kuwait), 4 slash commands. Covers SBP, AAOIFI, IFSB, CBUAE, BNM regulations. Bilingual Urdu/English.",
+  "version": "1.1.0",
+  "description": "Production-grade Islamic Banking Digital FTE. 1 router skill + 18 product skills (murabaha, ijarah, musharaka-dm, musharakah-full, mudarabah, sukuk-issuer, sukuk-investor, takaful, salam, istisna, zakat, shariah-screening, halal-calculator, product-explainer, pakistan-banking-navigator, islamic-banking-advisor, sukuk-takaful-specialist, roshan-digital-advisor), 13 jurisdiction overlays (Pakistan, UAE, Saudi Arabia, Malaysia, Bahrain, Kuwait, Qatar, Oman, Turkey, Nigeria, Indonesia, UK, GCC), 5 slash commands (/if-journal, /calculate, /check-halal, /zakat, /compare). Covers SBP, AAOIFI, IFSB, CBUAE, BNM regulations. Bilingual Urdu/English.",
   "author": {
     "name": "AliRaza192",
     "url": "https://github.com/AliRaza192"

@@ -62,7 +62,7 @@ def _verify_jwt(token, secret):
         if len(parts) != 3:
             return None
         header, body, sig = parts
-        expected = hmac.new(secret.encode(), f"{header}.{body}".encode(), hashlib.sha256).digest()
+        expected = _hmac.new(secret.encode(), f"{header}.{body}".encode(), hashlib.sha256).digest()
         if _base64url(expected) != sig:
             return None
         payload = json.loads(base64.urlsafe_b64decode(body + '=='))

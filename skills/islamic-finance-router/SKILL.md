@@ -47,8 +47,9 @@ Map query terms to product skills:
 | sukuk issuance, issue sukuk, corporate sukuk, SPV, sukuk structure | sukuk-issuer |
 | sukuk investment, buy sukuk, sukuk yield, GOP sukuk, Pakistan sukuk | sukuk-investor |
 | takaful accounting, takaful IFRS17, takaful operator, wakala model | takaful-ifrs17 |
+| diminishing musharakah, DM, musharaka mutanaqisah, home finance, co-ownership, declining musharaka, Islamic mortgage | musharaka-dm |
 | full musharakah, permanent musharakah, running musharakah, SME partnership | musharaka-full |
-| musharakah, mudarabah, partnership, profit sharing, diminishing musharakah | musharakah-mudarabah-specialist |
+| musharakah, mudarabah, partnership, profit sharing | musharakah-mudarabah-specialist |
 | sukuk, takaful, islamic insurance, halal insurance, islamic bond (generic) | sukuk-takaful-specialist |
 | zakat, zakaat, nisab, purification, tithe | zakat-advisor |
 | halal, haram, permissible, jaiz, shariah check, compliance, riba, gharar | shariah-compliance-checker |

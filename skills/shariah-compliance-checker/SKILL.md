@@ -128,6 +128,56 @@ have different thresholds. Show the comparison:
 | **Interest Income** | < 5% total revenue | < 5% total revenue | < 5% total revenue | < 5% total revenue | < 5% total revenue |
 | **Hard Exclusions** | Alcohol, pork, gambling, tobacco, conventional finance | Alcohol, pork, gambling, weapons | Alcohol, pork, gambling, tobacco, weapons | Alcohol, pork, gambling, tobacco, weapons | Alcohol, pork, gambling, weapons, conventional finance |
 
+### Full 5-Step Screening Workflow
+
+**Step 1 — Sector Screen (Hard Exclusions):**
+Automatically exclude any company with MATERIAL INVOLVEMENT in:
+- Conventional banking (interest-based)
+- Conventional insurance
+- Alcohol production or distribution
+- Tobacco production or distribution
+- Pork products (including gelatin, pork-based food processing)
+- Gambling (casinos, bookmakers, lottery, online gambling)
+- Adult entertainment / pornography
+- Weapons of mass destruction
+
+**Step 2 — Financial Ratio Screen:**
+- Debt Screen: If interest-bearing debt > 33% of total assets (AAOIFI/MSCI) → EXCLUDE
+- Cash + Interest-Bearing Securities Screen: If > 33% of total assets → EXCLUDE
+- Accounts Receivable Screen: If > 49% or 70% (methodology dependent) → flag
+- Data sources: Latest annual financial statements (12-month trailing)
+
+**Step 3 — Non-Permissible Income (NPI) Screen:**
+- NPI Definition: Revenue from prohibited activities (interest income, conventional insurance, alcohol, tobacco, pork, gambling)
+- NPI Threshold: 5% of total revenue (all four methodologies)
+- Calculation: NPI % = Total Non-Permissible Revenue / Total Revenue × 100
+- If NPI % > 5% → EXCLUDE
+- If NPI % ≤ 5% → PASS (but requires PURIFICATION)
+- If NPI % = 0% → FULLY CLEAN
+
+**Step 4 — Purification Calculation:**
+For holdings that PASS the 5% NPI screen but have some non-permissible income:
+```
+Purification Amount = Dividend Received × NPI % of that company
+
+Total Portfolio Purification = Σ (Dividend from company i × NPI % of company i)
+```
+Action: Donate the purification amount to charity (sadaqah). Do not retain.
+
+Journal entry:
+Dr: Purification Expense [Amount]
+Cr: Charity Payable — Purification [Amount]
+
+On payment:
+Dr: Charity Payable — Purification [Amount]
+Cr: Cash [Amount]
+
+**Step 5 — Conflict Resolution:**
+When different methodologies produce different results:
+1. Apply the methodology specified in the fund's SSB-approved investment policy
+2. If "most conservative of all methodologies" → exclude if ANY methodology excludes
+3. For borderline cases → refer to SSB for ruling. Do not trade without SSB determination
+
 ### How to Use This Table
 
 **Step 1 — Identify the methodology:**
@@ -149,15 +199,23 @@ SCREENING METHODOLOGY: [SC Malaysia / Tadawul / MSCI / DJIM / AAOIFI SS 21]
 Company: [Name]
 ```
 
-### Purification Calculation
-If stock passes screening but has minor non-Shariah income:
-```
-Purification Amount = Dividends Received × (Non-Shariah Income ÷ Total Revenue)
-This amount should be donated to charity (sadaqah)
-```
+### Quarterly Rebalancing Workflow
 
-### Quarterly Rebalancing
-Screening results change quarterly as company financials update:
-- Re-screen every quarter when new financial statements are released
-- 30-day divestment window if a stock fails screening
-- If company fails: sell within 30 days of announcement
+1. Obtain updated Shariah-compliant securities list from each applicable methodology provider
+2. Compare against current portfolio holdings
+3. Identify newly NON-COMPLIANT holdings → immediate divestment required
+4. Identify newly COMPLIANT holdings → eligible for purchase
+5. For holdings that remain compliant: update NPI % from latest annual reports
+6. Recalculate portfolio-level purification obligation
+7. Produce SSB quarterly compliance report
+
+**Divestment timeline:** Most SSBs allow 30 days to divest non-compliant holdings.
+
+### Mandatory Quarterly SSB Report Structure
+
+1. Portfolio composition: # and % of holdings by Shariah status
+2. Changes from prior quarter: additions to non-compliant list
+3. Purification obligation: calculation, amount, recommended charities
+4. Borderline holdings under SSB review
+5. Recommended actions before next quarter
+6. SSB attestation signature

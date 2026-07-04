@@ -127,8 +127,8 @@
   },
   {
     "id": "route-019",
-    "query": "Which bank is best for home finance?",
-    "expected_skill": "islamic-banking-advisor",
+    "query": "Which bank is best in Pakistan?",
+    "expected_skill": "pakistan-banking-navigator",
     "expected_jurisdiction": "pakistan",
     "category": "product-routing"
   },

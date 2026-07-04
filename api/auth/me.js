@@ -22,8 +22,6 @@ function setCors(req, res) {
   const origin = req.headers.origin;
   if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
-  } else if (origin) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
   }
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -34,6 +32,23 @@ export default async function handler(req, res) {
   setCors(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+
+  // Rate limit: max 30 requests per minute per IP
+  const clientIP = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
+  const now = Date.now();
+  const meRateLimit = globalThis._meRateLimit || (globalThis._meRateLimit = new Map());
+  const window = meRateLimit.get(clientIP) || { count: 0, start: now };
+
+  if (now - window.start > 60000) {
+    window.count = 0;
+    window.start = now;
+  }
+  window.count++;
+  meRateLimit.set(clientIP, window);
+
+  if (window.count > 30) {
+    return res.status(429).json({ error: 'Rate limit exceeded. Try again later.' });
+  }
 
   const { JWT_SECRET, DATABASE_URL } = process.env;
   if (!JWT_SECRET) return res.status(500).json({ error: 'JWT_SECRET not configured' });

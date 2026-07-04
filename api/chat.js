@@ -589,11 +589,8 @@ export default async function handler(req, res) {
     "http://localhost:3000",
   ];
 
-  // Always set CORS headers
-  if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin || "*");
-  } else if (origin) {
-    // Fallback: allow the requesting origin if not blocked
+  // Set CORS headers — only allowlisted origins
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -747,7 +744,39 @@ export default async function handler(req, res) {
     res.setHeader("X-RateLimit-Remaining", newRemaining);
 
     // 6. Save bot reply + shariah audit log
-    const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    let botReply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    // 6b. Shariah disclaimer enforcement — financial responses mein disclaimer mandatory hai
+    if (botReply) {
+      const financialSkills = [
+        "murabaha-specialist", "ijara-specialist", "salam-specialist",
+        "istisna-a-specialist", "sukuk-issuer", "sukuk-investor",
+        "takaful-ifrs17", "musharaka-full", "musharakah-mudarabah-specialist",
+        "sukuk-takaful-specialist", "zakat-advisor", "shariah-compliance-checker",
+        "halal-calculator", "pakistan-banking-navigator",
+      ];
+      const isFinancialQuery = financialSkills.includes(skillName);
+
+      if (isFinancialQuery) {
+        const hasDisclaimer =
+          botReply.includes("Shariah Disclaimer") ||
+          botReply.includes("شرعی نوٹ") ||
+          botReply.includes("shariah disclaimer") ||
+          botReply.includes("educational and guidance purposes");
+
+        if (!hasDisclaimer) {
+          const hasUrduScript = /[\u0600-\u06FF]/.test(botReply);
+          const disclaimerEN =
+            "\n\n---\n\n*⚠️ Shariah Disclaimer: This information is for educational and guidance purposes only. It does not constitute a formal Fatwa or binding Shariah ruling. Please consult your bank's Shariah Advisor or a qualified Islamic scholar before making financial decisions. Product features and profit rates change — verify current terms with your bank directly.*";
+          const disclaimerUR =
+            "\n\n---\n\n*⚠️ شرعی نوٹ: یہ معلومات صرف رہنمائی کے لیے ہیں۔ کوئی بھی مالی فیصلہ کرنے سے پہلے اپنے بینک کے شریعہ ایڈوائزر یا کسی مستند عالم دین سے مشورہ ضرور لیں۔*";
+          botReply += hasUrduScript ? disclaimerUR : disclaimerEN;
+          // Update the Gemini response object so saved message includes disclaimer
+          data.candidates[0].content.parts[0].text = botReply;
+        }
+      }
+    }
+
     if (sql && session_id && botReply) {
       await sql`
         INSERT INTO messages (session_id, role, content)
@@ -772,6 +801,10 @@ export default async function handler(req, res) {
       );
       if (isComplianceQuery) {
         try {
+          // disclaimer_shown = true only if we actually verified/enforced it
+          const hasDisclaimerNow =
+            botReply.includes("Shariah Disclaimer") ||
+            botReply.includes("شرعی نوٹ");
           await sql`
             INSERT INTO shariah_audit_log (user_email, session_id, query_type, input_data, output_summary, disclaimer_shown)
             VALUES (
@@ -780,7 +813,7 @@ export default async function handler(req, res) {
               ${skillName},
               ${JSON.stringify({ query: userMsg.substring(0, 500) })},
               ${botReply.substring(0, 300)},
-              true
+              ${hasDisclaimerNow}
             )
           `;
         } catch (auditErr) {
