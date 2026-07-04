@@ -521,7 +521,7 @@ async function checkRateLimit(sql, ip, user) {
       return { allowed: count < limit, remaining, tier, count };
     } catch (err) {
       console.error("User rate limit error:", err.message);
-      return { allowed: false, remaining: 0, tier };
+      return { allowed: true, remaining: limit, tier, count: 0 };
     }
   }
 

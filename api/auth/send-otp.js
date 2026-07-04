@@ -70,7 +70,7 @@ export default async function handler(req, res) {
     if (parseInt(recent[0].cnt) >= 3) {
       return res
         .status(429)
-        .json({ error: "Too many OTP requests. Try again in 10 minutes." });
+        .json({ error: "Too many OTP requests. Wait 10 minutes before trying again." });
     }
 
     // Generate and store OTP
