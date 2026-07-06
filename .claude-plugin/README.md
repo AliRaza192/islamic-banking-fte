@@ -30,4 +30,5 @@ If the `murabaha-specialist` skill auto-activates, the plugin is working.
 
 ## License
 
-Commercial license — contact for Islamic bank and institution pricing.
+Open source under MIT License. Commercial use permitted.
+Live deployment: [islamic-banking-fte.vercel.app](https://islamic-banking-fte.vercel.app)

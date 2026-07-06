@@ -15,7 +15,7 @@
         { "key": "X-Frame-Options",          "value": "SAMEORIGIN" },
         { "key": "X-XSS-Protection",         "value": "1; mode=block" },
         { "key": "Referrer-Policy",          "value": "strict-origin-when-cross-origin" },
-        { "key": "Content-Security-Policy",  "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; connect-src 'self' https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com" }
+        { "key": "Content-Security-Policy",  "value": "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; connect-src 'self' https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com" }
       ]
     },
     {
@@ -48,6 +48,7 @@
     { "source": "/pricing",     "destination": "/pricing.html" },
     { "source": "/calculators", "destination": "/calculators.html" },
     { "source": "/banks",       "destination": "/banks.html" },
-    { "source": "/admin",       "destination": "/admin.html" }
+    { "source": "/admin",       "destination": "/admin.html" },
+    { "source": "/api/admin/cleanup", "destination": "/api/admin/cleanup.js" }
   ]
 }

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Islamic Banking FTE</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .privacy-page { min-height: 100vh; background: var(--bg); }
+    .privacy-nav {
+      background: var(--green-dark); color: white;
+      padding: 0.85rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .privacy-nav a { color: white; text-decoration: none; font-weight: 600; }
+    .privacy-content {
+      max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem 4rem;
+    }
+    .privacy-content h1 {
+      font-size: 1.8rem; color: var(--green-dark); margin-bottom: 0.5rem;
+    }
+    .privacy-content .last-updated {
+      color: var(--text-muted); font-size: 0.85rem; margin-bottom: 2rem;
+    }
+    .privacy-content h2 {
+      font-size: 1.2rem; color: var(--green-dark); margin-top: 2rem;
+      margin-bottom: 0.5rem; border-bottom: 2px solid var(--gold); padding-bottom: 0.3rem;
+    }
+    .privacy-content p, .privacy-content li {
+      color: var(--text); line-height: 1.7; font-size: 0.95rem;
+    }
+    .privacy-content ul { padding-left: 1.5rem; }
+    .privacy-content li { margin-bottom: 0.4rem; }
+    .privacy-content .highlight {
+      background: #f0f9f4; border-left: 4px solid var(--green-mid);
+      padding: 1rem 1.2rem; border-radius: 0 8px 8px 0; margin: 1rem 0;
+    }
+    .lang-toggle {
+      display: flex; gap: 0.5rem; margin-bottom: 1.5rem;
+    }
+    .lang-btn {
+      padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.82rem;
+      border: 1.5px solid var(--border); background: white; cursor: pointer;
+      font-family: inherit; font-weight: 600;
+    }
+    .lang-btn.active { background: var(--green-dark); color: white; border-color: var(--green-dark); }
+    .urdu-content { display: none; }
+    .urdu-content.active { display: block; }
+    .english-content { display: block; }
+    .english-content.hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="privacy-page">
+    <nav class="privacy-nav">
+      <a href="/">Islamic Banking FTE</a>
+      <a href="/chat">← Chat Pe Wapas Jayein</a>
+    </nav>
+
+    <div class="privacy-content">
+      <h1>Privacy Policy</h1>
+      <p class="last-updated">Last Updated: July 5, 2026</p>
+
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="showLang('en')">English</button>
+        <button class="lang-btn" onclick="showLang('ur')">اردو / Roman Urdu</button>
+      </div>
+
+      <!-- ENGLISH -->
+      <div class="english-content" id="en-content">
+        <h2>1. What We Collect</h2>
+        <div class="highlight">
+          <strong>Simple answer:</strong> We only collect what's needed to provide you the service. We do NOT sell your data.
+        </div>
+        <ul>
+          <li><strong>Email address</strong> — Only if you create an account (for OTP login)</li>
+          <li><strong>Chat messages</strong> — Your questions and our responses (to provide the service and improve quality)</li>
+          <li><strong>Usage data</strong> — IP address, browser type (for rate limiting and security)</li>
+          <li><strong>Payment info</strong> — Processed by Stripe (we never see your card number)</li>
+        </ul>
+
+        <h2>2. What We DON'T Collect</h2>
+        <ul>
+          <li>We do NOT collect your CNIC, bank account numbers, or other national ID numbers</li>
+          <li>We do NOT track your location</li>
+          <li>We do NOT share your data with third parties for advertising</li>
+          <li We do NOT sell your personal information to anyone</li>
+        </ul>
+
+        <h2>3. How We Use Your Data</h2>
+        <ul>
+          <li>To provide Islamic banking guidance and calculations</li>
+          <li>To remember your conversation context within a session</li>
+          <li>To enforce rate limits and prevent abuse</li>
+          <li>To improve our AI's accuracy (anonymized data only)</li>
+          <li>To send payment confirmations (if you subscribe)</li>
+        </ul>
+
+        <h2>4. Data Storage & Security</h2>
+        <ul>
+          <li>Data is stored in Neon PostgreSQL (encrypted at rest)</li>
+          <li>All communication is over HTTPS</li>
+          <li>We use industry-standard security practices</li>
+          <li>Financial data you share in chat is NOT stored separately — it exists only in your chat messages</li>
+        </ul>
+
+        <h2>5. Data Retention</h2>
+        <ul>
+          <li><strong>Chat messages:</strong> Retained for 12 months, then automatically deleted</li>
+          <li><strong>Account data:</strong> Retained until you delete your account</li>
+          <li><strong>Payment records:</strong> Retained as required by law (5 years for tax purposes)</li>
+        </ul>
+
+        <h2>6. Your Rights</h2>
+        <ul>
+          <li><strong>Access:</strong> You can request a copy of all data we have about you</li>
+          <li><strong>Deletion:</strong> You can request deletion of your account and all associated data</li>
+          <li><strong>Correction:</strong> You can request correction of any inaccurate data</li>
+          <li><strong>Export:</strong> You can request your data in a portable format</li>
+        </ul>
+
+        <h2>7. Cookies</h2>
+        <p>We use only essential cookies (for authentication). We do NOT use tracking cookies or advertising cookies.</p>
+
+        <h2>8. Children's Privacy</h2>
+        <p>This service is not intended for children under 18. We do not knowingly collect data from children.</p>
+
+        <h2>9. Changes to This Policy</h2>
+        <p>We may update this policy occasionally. Significant changes will be announced on our website. Continued use of the service constitutes acceptance of the updated policy.</p>
+
+        <h2>10. Contact Us</h2>
+        <p>For privacy-related questions or data deletion requests, contact us at: <strong>privacy@islamic-banking-fte.vercel.app</strong></p>
+
+        <div class="highlight">
+          <strong>In simple words (Roman Urdu):</strong> Hum sirf wohi data lete hain jo service dene ke liye zaroori hai. Hum aapka data bechte nahi hain. Aap apna data delete karwa sakte hain. Hum aapki privacy ko seriously lete hain.
+        </div>
+      </div>
+
+      <!-- URDU -->
+      <div class="urdu-content" id="ur-content">
+        <h2>1. Hum Kya Lete Hain</h2>
+        <div class="highlight">
+          <strong>Simple jawab:</strong> Hum sirf wohi data lete hain jo service dene ke liye zaroori hai. Hum aapka data BECHTE nahi hain.
+        </div>
+        <ul>
+          <li><strong>Email address</strong> — Sirf agar aap account banayein (OTP login ke liye)</li>
+          <li><strong>Chat messages</strong> — Aapke sawalat aur hamare jawabat (service dene aur behtar banane ke liye)</li>
+          <li><strong>Usage data</strong> — IP address, browser type (rate limiting aur security ke liye)</li>
+          <li><strong>Payment info</strong> — Stripe process karta hai (hum kabhi aapka card number nahi dekhte)</li>
+        </ul>
+
+        <h2>2. Hum Kya NAHI Lete</h2>
+        <ul>
+          <li>Hum aapka CNIC, bank account numbers, ya national ID numbers NAHI lete</li>
+          <li>Hum aapki location track NAHI karte</li>
+          <li>Hum aapka data advertising ke liye third parties ke saath NAHI share karte</li>
+          <li>Hum aapki personal information kisi ko BECHTE nahi</li>
+        </ul>
+
+        <h2>3. Hum Data Ka Kya Karte Hain</h2>
+        <ul>
+          <li>Islamic banking guidance aur calculations dene ke liye</li>
+          <li>Aapke conversation context ko yaad rakhne ke liye (sirf session ke andar)</li>
+          <li>Rate limits enforce karne aur abuse rokne ke liye</li>
+          <li>Hamare AI ki accuracy behtar banane ke liye (sirf anonymized data)</li>
+          <li>Payment confirmations bhejne ke liye (agar aap subscribe karein)</li>
+        </ul>
+
+        <h2>4. Data Storage aur Security</h2>
+        <ul>
+          <li>Data Neon PostgreSQL mein store hota hai (encrypted at rest)</li>
+          <li>Sari communication HTTPS over hoti hai</li>
+          <li>Hum industry-standard security practices use karte hain</li>
+          <li>Aap jo financial data share karte hain wo alag se store NAHI hota — sirf chat messages mein rehta hai</li>
+        </ul>
+
+        <h2>5. Data Kitni Der Tak Rakhte Hain</h2>
+        <ul>
+          <li><strong>Chat messages:</strong> 12 mahine tak, phir automatic delete</li>
+          <li><strong>Account data:</strong> Jab tak aap account delete na karein</li>
+          <li><strong>Payment records:</strong> Qanoon ke mutabiq (tax ke liye 5 saal)</li>
+        </ul>
+
+        <h2>6. Aapke Haq</h2>
+        <ul>
+          <li><strong>Access:</strong> Aap apna poora data mang sakte hain</li>
+          <li><strong>Deletion:</strong> Aap apna account aur sara data delete karwa sakte hain</li>
+          <li><strong>Correction:</strong> Aap galat data correct karwa sakte hain</li>
+          <li><strong>Export:</strong> Aap apna data portable format mein le sakte hain</li>
+        </ul>
+
+        <h2>7. Contact Karein</h2>
+        <p>Privacy se mutaliq sawalat ya data deletion ke liye: <strong>privacy@islamic-banking-fte.vercel.app</strong></p>
+
+        <div class="highlight">
+          <strong>Simple alfaaz mein:</strong> Hum sirf wohi data lete hain jo service dene ke liye zaroori hai. Hum aapka data bechte nahi hain. Aap apna data delete karwa sakte hain. Hum aapki privacy ko seriously lete hain.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showLang(lang) {
+      const enContent = document.getElementById('en-content');
+      const urContent = document.getElementById('ur-content');
+      const buttons = document.querySelectorAll('.lang-btn');
+
+      buttons.forEach(btn => btn.classList.remove('active'));
+
+      if (lang === 'ur') {
+        enContent.classList.add('hidden');
+        urContent.classList.add('active');
+        buttons[1].classList.add('active');
+      } else {
+        enContent.classList.remove('hidden');
+        urContent.classList.remove('active');
+        buttons[0].classList.add('active');
+      }
+    }
+  </script>
+</body>
+</html>

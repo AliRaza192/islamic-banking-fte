@@ -354,6 +354,30 @@ html, body {
 .copy-btn:hover  { color: var(--green-dark); border-color: var(--green-light); }
 .copy-btn.copied { color: var(--green-mid); border-color: var(--green-light); }
 
+/* Feedback buttons — thumbs up/down */
+.feedback-btns {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.message.bot:hover .feedback-btns { opacity: 1; }
+.feedback-btn {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  line-height: 1;
+}
+.feedback-btn:hover { border-color: var(--green-light); background: var(--green-pale); }
+.feedback-btn.selected { opacity: 1; border-color: var(--green-mid); background: var(--green-pale); }
+.feedback-btn[data-rating="up"].selected { color: #2d6a4f; }
+.feedback-btn[data-rating="down"].selected { color: #c0392b; }
+
 /* Calc block (inline code style) */
 .bubble .calc-block {
   background: white;

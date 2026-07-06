@@ -117,3 +117,68 @@ CREATE TABLE IF NOT EXISTS rates_cache (
   fetched_at    TIMESTAMP DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_rates_metal ON rates_cache(metal, fetched_at DESC);
+
+-- 9. Full audit log (every response — for compliance)
+CREATE TABLE IF NOT EXISTS full_audit_log (
+  id                  SERIAL PRIMARY KEY,
+  session_id          TEXT,
+  user_email          TEXT,
+  skill_used          TEXT,
+  jurisdiction        TEXT,
+  rate_used           JSONB DEFAULT '{}',
+  disclaimer_shown    BOOLEAN DEFAULT false,
+  escalation_triggered BOOLEAN DEFAULT false,
+  blocked             BOOLEAN DEFAULT false,
+  block_reason        TEXT,
+  overclaim_fixed     BOOLEAN DEFAULT false,
+  response_hash       TEXT,
+  response_length     INTEGER,
+  created_at          TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_audit_log_session ON full_audit_log(session_id);
+CREATE INDEX IF NOT EXISTS idx_audit_log_time ON full_audit_log(created_at);
+CREATE INDEX IF NOT EXISTS idx_audit_log_skill ON full_audit_log(skill_used, created_at);
+
+-- 10. Rate update history (for audit trail)
+CREATE TABLE IF NOT EXISTS rate_update_history (
+  id            SERIAL PRIMARY KEY,
+  rate_type     TEXT NOT NULL,
+  old_value     NUMERIC,
+  new_value     NUMERIC NOT NULL,
+  source        TEXT NOT NULL,
+  updated_by    TEXT,
+  notes         TEXT,
+  created_at    TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_rate_history_type ON rate_update_history(rate_type, created_at DESC);
+
+-- 11. User profiles (preferences extracted from conversations)
+CREATE TABLE IF NOT EXISTS user_profiles (
+  user_id         TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  preferred_lang  TEXT DEFAULT 'en' CHECK (preferred_lang IN ('en', 'ur', 'roman_ur')),
+  jurisdiction    TEXT DEFAULT 'pakistan',
+  mentioned_assets JSONB DEFAULT '{}',  -- User-mentioned financial details (encrypted in future)
+  risk_profile    TEXT,  -- Conservative / Moderate / Aggressive
+  interests       TEXT[] DEFAULT '{}',  -- Products user asked about
+  last_query_date TIMESTAMP,
+  query_count     INTEGER DEFAULT 0,
+  created_at      TIMESTAMP DEFAULT NOW(),
+  updated_at      TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_profiles_user ON user_profiles(user_id);
+
+-- 12. User feedback (thumbs up/down on responses)
+CREATE TABLE IF NOT EXISTS user_feedback (
+  id            SERIAL PRIMARY KEY,
+  session_id    TEXT,
+  user_email    TEXT,
+  message_index INTEGER,  -- Which message in conversation
+  rating        TEXT NOT NULL CHECK (rating IN ('up', 'down')),
+  comment       TEXT,     -- Optional comment
+  skill_used    TEXT,     -- Which skill generated the response
+  query_text    TEXT,     -- Original query (truncated)
+  created_at    TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_feedback_session ON user_feedback(session_id);
+CREATE INDEX IF NOT EXISTS idx_feedback_rating ON user_feedback(rating, created_at);
+CREATE INDEX IF NOT EXISTS idx_feedback_skill ON user_feedback(skill_used, rating);

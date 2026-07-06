@@ -1,6 +1,7 @@
 # Islamic Banking Products — Reference Guide
 **Version:** 1.0.0 | **Jurisdiction:** Pakistan (SBP) + Gulf Markets
 **Last Updated:** May 2026
+**Freshness Status:** ⚠️ STALE — Last updated 2+ months ago. Verify current rates with banks directly.
 
 ---
 

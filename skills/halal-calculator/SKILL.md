@@ -63,9 +63,32 @@ Best For:           Cars, goods     Cars, equipment Homes
 * Ijara: Month 1 rental only — changes with KIBOR
 ```
 
-## Always Show Work
-Never give just the final number. Show:
-1. Formula used
-2. Numbers plugged in
-3. Result
-4. What it means in plain language
+## Always Show Work (MANDATORY)
+
+**Every calculation MUST show step-by-step breakdown. This is not optional.**
+
+Format for EVERY calculation:
+```
+📊 [CALCULATION TYPE] CALCULATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 1: [Step Title]
+📋 Formula: [Formula used]
+📥 Inputs: [Values plugged in]
+📤 Result: [Result of this step]
+📝 Notes: [Any assumptions or clarifications]
+
+Step 2: [Next Step]
+...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ Warnings: [Any caveats]
+📚 Sources: [Data sources + date]
+📅 Calculation Date: [Date]
+```
+
+**NEVER give just a single number.** User must be able to:
+1. Verify the calculation independently
+2. Understand which formula was used
+3. See what assumptions were made
+4. Know when data was last updated

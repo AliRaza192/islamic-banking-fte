@@ -1,5 +1,6 @@
 # Pakistani Islamic Banks — Complete Reference
 **Version:** 1.0.0 | **Last Updated:** May 2026
+**Freshness Status:** ⚠️ STALE — Bank contact info and products may have changed. Verify with bank websites.
 **Source:** SBP Islamic Banking Bulletin + Bank websites
 
 ---

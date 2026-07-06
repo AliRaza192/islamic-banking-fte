@@ -1,0 +1,147 @@
+name: Islamic Banking FTE — Evals Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  structure-validation:
+    name: Structure & Skill Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run structure validation
+        run: python3 evals/run-evals.py
+
+  skill-integrity:
+    name: Skill Integrity Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify all 19 skills exist
+        run: |
+          SKILLS=(
+            islamic-finance-router murabaha-specialist ijara-specialist
+            salam-specialist istisna-a-specialist sukuk-issuer sukuk-investor
+            takaful-ifrs17 musharaka-full musharaka-dm
+            musharakah-mudarabah-specialist zakat-advisor shariah-compliance-checker
+            halal-calculator islamic-product-explainer pakistan-banking-navigator
+            islamic-banking-advisor sukuk-takaful-specialist roshan-digital-advisor
+          )
+          MISSING=0
+          for skill in "${SKILLS[@]}"; do
+            if [ ! -f "skills/$skill/SKILL.md" ]; then
+              echo "❌ Missing: skills/$skill/SKILL.md"
+              MISSING=1
+            fi
+          done
+          if [ $MISSING -eq 1 ]; then exit 1; fi
+          echo "✅ All ${#SKILLS[@]} skills verified"
+
+      - name: Verify jurisdiction overlays
+        run: |
+          OVERLAYS=(
+            pakistan-ifrs uae-ifrs saudi-ifrs malaysia-mfrs
+            bahrain-aaoifi kuwait-ifrs qatar-aaoifi oman-ifrs
+            turkey-tfrs nigeria-ifrs indonesia-psak uk-ifrs gcc-crossborder
+          )
+          MISSING=0
+          for overlay in "${OVERLAYS[@]}"; do
+            if [ ! -f "skills/islamic-finance-router/references/jurisdictions/$overlay.md" ]; then
+              echo "❌ Missing: $overlay.md"
+              MISSING=1
+            fi
+          done
+          if [ $MISSING -eq 1 ]; then exit 1; fi
+          echo "✅ All ${#OVERLAYS[@]} jurisdiction overlays verified"
+
+  guardrails-test:
+    name: Guardrails Verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify fatwa blocking patterns exist in chat.js
+        run: |
+          if grep -q "FATWA_PATTERNS" api/chat.js; then
+            echo "✅ Fatwa blocking hook found"
+          else
+            echo "❌ Fatwa blocking hook MISSING"
+            exit 1
+          fi
+
+      - name: Verify scope enforcement exists in chat.js
+        run: |
+          if grep -q "SCOPE_RULES" api/chat.js; then
+            echo "✅ Scope enforcement hook found"
+          else
+            echo "❌ Scope enforcement hook MISSING"
+            exit 1
+          fi
+
+      - name: Verify overclaiming detection exists in chat.js
+        run: |
+          if grep -q "OVERCLAIM_PATTERNS" api/chat.js; then
+            echo "✅ Overclaiming detection hook found"
+          else
+            echo "❌ Overclaiming detection hook MISSING"
+            exit 1
+          fi
+
+      - name: Verify disclaimer enforcement exists in chat.js
+        run: |
+          if grep -q "disclaimerPatterns" api/chat.js; then
+            echo "✅ Disclaimer enforcement found"
+          else
+            echo "❌ Disclaimer enforcement MISSING"
+            exit 1
+          fi
+
+      - name: Verify full_audit_log table in schema
+        run: |
+          if grep -q "full_audit_log" schema.sql; then
+            echo "✅ Full audit log table found"
+          else
+            echo "❌ Full audit log table MISSING"
+            exit 1
+          fi
+
+  security-check:
+    name: Security Baseline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: No wildcard CORS
+        run: |
+          if grep -r "else if (origin)" api/; then
+            echo "❌ CORS wildcard reflection detected"
+            exit 1
+          fi
+          echo "✅ No CORS wildcard reflection"
+
+      - name: Rate limiting exists
+        run: |
+          if grep -q "checkRateLimit" api/chat.js; then
+            echo "✅ Rate limiting found"
+          else
+            echo "❌ Rate limiting MISSING"
+            exit 1
+          fi
+
+      - name: Input validation exists
+        run: |
+          if grep -q "validateInput" api/chat.js; then
+            echo "✅ Input validation found"
+          else
+            echo "❌ Input validation MISSING"
+            exit 1
+          fi

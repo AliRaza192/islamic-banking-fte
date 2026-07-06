@@ -1,5 +1,6 @@
 # Nisab & Zakat Reference Table
 **Version:** 1.0.0 | **Last Updated:** May 2026
+**Freshness Status:** ⚠️ STALE — PKR values are estimates. Use live rates from /api/rates endpoint.
 **IMPORTANT:** Gold/Silver prices change daily — update PKR figures monthly
 
 ---
