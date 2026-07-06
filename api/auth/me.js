@@ -1,5 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 const ALLOWED_ORIGINS = [
   'https://islamic-banking-fte.vercel.app',
@@ -7,11 +8,10 @@ const ALLOWED_ORIGINS = [
   'http://localhost:3000',
 ];
 
-// FIXED: must match chat.js TIER_LIMITS exactly
 const TIER_LIMITS = {
-  anonymous:    5,
-  free:         5,    // was 10 — corrected to match chat.js
-  premium:      100,
+  anonymous: 5,
+  free: 5,
+  premium: 100,
   professional: Infinity,
 };
 
@@ -20,17 +20,34 @@ function setCors(req, res) {
   if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
 }
 
-export default async function handler(req, res) {
-  setCors(req, res);
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+function parseCookies(cookieHeader) {
+  const cookies = {};
+  if (!cookieHeader) return cookies;
+  for (const pair of cookieHeader.split(';')) {
+    const [k, ...v] = pair.split('=');
+    cookies[k.trim()] = v.join('=').trim();
+  }
+  return cookies;
+}
 
-  // Rate limit: max 30 requests per minute per IP
+function extractToken(req) {
+  const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith('Bearer ')) return authHeader.slice(7);
+  const cookies = parseCookies(req.headers.cookie);
+  return cookies['ibf_token'] || null;
+}
+
+function handleLogout(req, res) {
+  res.setHeader('Set-Cookie', 'ibf_token=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0');
+  return res.status(200).json({ success: true });
+}
+
+async function handleMe(req, res) {
   const clientIP = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
   const now = Date.now();
   const meRateLimit = globalThis._meRateLimit || (globalThis._meRateLimit = new Map());
@@ -51,38 +68,18 @@ export default async function handler(req, res) {
   if (!JWT_SECRET) return res.status(500).json({ error: 'JWT_SECRET not configured' });
 
   try {
-    // Check both Authorization header and HttpOnly cookie
-    let token = null;
-    const authHeader = req.headers.authorization;
-    if (authHeader?.startsWith('Bearer ')) {
-      token = authHeader.slice(7);
-    } else {
-      const cookies = (req.headers.cookie || '').split(';').reduce((acc, pair) => {
-        const [k, ...v] = pair.split('=');
-        acc[k.trim()] = v.join('=').trim();
-        return acc;
-      }, {});
-      token = cookies['ibf_token'] || null;
-    }
-    if (!token) {
-      return res.status(401).json({ error: 'Authorization token required' });
-    }
+    const token = extractToken(req);
+    if (!token) return res.status(401).json({ error: 'Authorization token required' });
 
     const decoded = jwt.verify(token, JWT_SECRET);
     const sql = neon(DATABASE_URL);
 
     const userRows = await sql`
-      SELECT id, email, tier, queries_today, queries_date FROM users
-      WHERE id = ${decoded.userId}
+      SELECT id, email, tier, queries_today, queries_date FROM users WHERE id = ${decoded.userId}
     `;
-
-    if (userRows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    if (userRows.length === 0) return res.status(404).json({ error: 'User not found' });
 
     const user = userRows[0];
-
-    // Reset daily counter if new day
     const today = new Date().toISOString().split('T')[0];
     if (user.queries_date && user.queries_date.toISOString().split('T')[0] !== today) {
       await sql`UPDATE users SET queries_today = 0, queries_date = ${today} WHERE id = ${user.id}`;
@@ -90,27 +87,21 @@ export default async function handler(req, res) {
     }
 
     const limit = TIER_LIMITS[user.tier] ?? 5;
-
-    // Get active subscription (including past_due)
     const subs = await sql`
       SELECT tier, provider, start_date, end_date, status, provider_subscription_id
-      FROM subscriptions
-      WHERE user_id = ${user.id} AND status IN ('active', 'past_due')
+      FROM subscriptions WHERE user_id = ${user.id} AND status IN ('active', 'past_due')
       ORDER BY created_at DESC LIMIT 1
     `;
-
-    // queries remaining for UI
     const queriesRemaining = limit === Infinity ? null : Math.max(0, limit - user.queries_today);
 
     return res.status(200).json({
-      email:              user.email,
-      tier:               user.tier,
-      queries_today:      user.queries_today,
-      queries_limit:      limit === Infinity ? 'unlimited' : limit,
-      queries_remaining:  queriesRemaining,
-      subscription:       subs.length > 0 ? subs[0] : null,
+      email: user.email,
+      tier: user.tier,
+      queries_today: user.queries_today,
+      queries_limit: limit === Infinity ? 'unlimited' : limit,
+      queries_remaining: queriesRemaining,
+      subscription: subs.length > 0 ? subs[0] : null,
     });
-
   } catch (err) {
     if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
       return res.status(401).json({ error: 'Invalid or expired token' });
@@ -118,4 +109,16 @@ export default async function handler(req, res) {
     console.error('me error:', err.message);
     return res.status(500).json({ error: 'Internal server error' });
   }
+}
+
+export default async function handler(req, res) {
+  setCors(req, res);
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const url = new URL(req.url, `https://${req.headers.host}`);
+  const action = url.searchParams.get('action') || '';
+
+  if (action === 'logout' || req.method === 'POST') return handleLogout(req, res);
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+  return handleMe(req, res);
 }

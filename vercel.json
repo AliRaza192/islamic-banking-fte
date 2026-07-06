@@ -1,11 +1,5 @@
 {
   "version": 2,
-  "functions": {
-    "api/**/*.js": {
-      "memory": 512,
-      "maxDuration": 30
-    }
-  },
   "outputDirectory": "web",
   "headers": [
     {
@@ -32,23 +26,38 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/chat",            "destination": "/api/chat.js" },
-    { "source": "/api/auth/send-otp",   "destination": "/api/auth/send-otp.js" },
-    { "source": "/api/auth/verify-otp", "destination": "/api/auth/verify-otp.js" },
-    { "source": "/api/me",              "destination": "/api/auth/me.js" },
-    { "source": "/api/rates",           "destination": "/api/rates.js" },
-    { "source": "/api/stripe/webhook",  "destination": "/api/payments/stripe-webhook.js" },
-    { "source": "/api/stripe/checkout", "destination": "/api/payments/create-checkout.js" },
+    { "source": "/",                      "destination": "/landing.html" },
+    { "source": "/landing",               "destination": "/landing.html" },
+    { "source": "/chat",                  "destination": "/chat.html" },
+    { "source": "/app",                   "destination": "/chat.html" },
+    { "source": "/dashboard",             "destination": "/dashboard.html" },
+    { "source": "/pricing",               "destination": "/pricing.html" },
+    { "source": "/calculators",           "destination": "/calculators.html" },
+    { "source": "/banks",                 "destination": "/banks.html" },
+    { "source": "/admin",                 "destination": "/admin.html" },
 
-    { "source": "/",            "destination": "/landing.html" },
-    { "source": "/landing",     "destination": "/landing.html" },
-    { "source": "/chat",        "destination": "/chat.html" },
-    { "source": "/app",         "destination": "/chat.html" },
-    { "source": "/dashboard",   "destination": "/dashboard.html" },
-    { "source": "/pricing",     "destination": "/pricing.html" },
-    { "source": "/calculators", "destination": "/calculators.html" },
-    { "source": "/banks",       "destination": "/banks.html" },
-    { "source": "/admin",       "destination": "/admin.html" },
-    { "source": "/api/admin/cleanup", "destination": "/api/admin/cleanup.js" }
+    { "source": "/api/chat",              "destination": "/api/chat.js" },
+    { "source": "/api/auth/send-otp",     "destination": "/api/auth/send-otp.js" },
+    { "source": "/api/auth/verify-otp",   "destination": "/api/auth/verify-otp.js" },
+    { "source": "/api/auth/me",           "destination": "/api/auth/me.js" },
+    { "source": "/api/auth/logout",       "destination": "/api/auth/me.js?action=logout" },
+
+    { "source": "/api/rates",             "destination": "/api/data.js?action=rates" },
+    { "source": "/api/bank-rates",        "destination": "/api/data.js?action=banks" },
+    { "source": "/api/compare-banks",     "destination": "/api/data.js?action=compare" },
+    { "source": "/api/health",            "destination": "/api/data.js?action=health" },
+
+    { "source": "/api/history",           "destination": "/api/user.js" },
+    { "source": "/api/feedback",          "destination": "/api/user.js?action=feedback" },
+
+    { "source": "/api/admin",             "destination": "/api/admin.js" },
+    { "source": "/api/admin-rates",       "destination": "/api/admin.js?action=rates" },
+    { "source": "/api/admin/cleanup",     "destination": "/api/admin.js?action=cleanup" },
+
+    { "source": "/api/payments/create-checkout", "destination": "/api/payments.js?action=checkout" },
+    { "source": "/api/payments/verify",   "destination": "/api/payments.js?action=verify" },
+    { "source": "/api/payments/portal",   "destination": "/api/payments.js?action=portal" },
+    { "source": "/api/stripe/webhook",    "destination": "/api/payments.js?action=webhook" },
+    { "source": "/api/stripe/checkout",   "destination": "/api/payments.js?action=checkout" }
   ]
 }
