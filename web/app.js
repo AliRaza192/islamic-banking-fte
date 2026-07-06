@@ -284,13 +284,12 @@ async function callGemini() {
   };
 
   const headers = { "Content-Type": "application/json" };
-  const token = sessionStorage.getItem("ibf_token");
-  if (token) headers["Authorization"] = `Bearer ${token}`;
 
   const response = await fetch(API_URL, {
     method: "POST",
     headers,
     body: JSON.stringify(body),
+    credentials: "include",
   });
 
   // Update upgrade bar from response headers (api/chat.js sets these)
@@ -450,6 +449,28 @@ function appendMessage(role, html) {
     div.appendChild(avatar);
     div.appendChild(bubble);
     div.appendChild(copyBtn);
+
+    // Feedback buttons — thumbs up/down
+    const feedbackDiv = document.createElement("div");
+    feedbackDiv.className = "feedback-btns";
+    feedbackDiv.innerHTML = `
+      <button class="feedback-btn" data-rating="up" title="Helpful">👍</button>
+      <button class="feedback-btn" data-rating="down" title="Not helpful">👎</button>
+    `;
+    feedbackDiv.querySelectorAll(".feedback-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const rating = btn.dataset.rating;
+        submitFeedback(rating, bubble.innerText.substring(0, 200));
+        // Hide both buttons, show selected
+        feedbackDiv.querySelectorAll(".feedback-btn").forEach((b) => {
+          b.style.display = "none";
+        });
+        btn.style.display = "inline-block";
+        btn.classList.add("selected");
+        btn.style.opacity = "1";
+      });
+    });
+    div.appendChild(feedbackDiv);
   } else {
     div.appendChild(avatar);
     div.appendChild(bubble);
@@ -493,6 +514,24 @@ function escapeHtml(str) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+// ---- FEEDBACK SUBMISSION ----
+async function submitFeedback(rating, queryText) {
+  try {
+    const sessionId = window.sessionId || null;
+    await fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        session_id: sessionId,
+        rating,
+        query_text: queryText,
+      }),
+    });
+  } catch {
+    // Feedback failure shouldn't affect UX
+  }
 }
 
 // ─── VOICE INPUT (Urdu/English) ──────────────────────────────────────────────

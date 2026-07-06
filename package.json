@@ -22,7 +22,6 @@
     "@neondatabase/serverless": "1.1.0",
     "jsonwebtoken": "9.0.3",
     "resend": "6.12.4",
-    "stripe": "22.2.0",
-    "ws": "8.18.0"
+    "stripe": "22.2.0"
   }
 }

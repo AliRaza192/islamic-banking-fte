@@ -21,16 +21,27 @@ export default async function handler(req, res) {
   const { JWT_SECRET, DATABASE_URL } = process.env;
   if (!JWT_SECRET) return res.status(500).json({ error: 'JWT_SECRET not configured' });
 
-  // Token verify — proper signature check with jwt.verify()
+  // Token verify — check both Authorization header and HttpOnly cookie
+  let token = null;
   const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) {
+  if (authHeader?.startsWith('Bearer ')) {
+    token = authHeader.slice(7);
+  } else {
+    const cookies = (req.headers.cookie || '').split(';').reduce((acc, pair) => {
+      const [k, ...v] = pair.split('=');
+      acc[k.trim()] = v.join('=').trim();
+      return acc;
+    }, {});
+    token = cookies['ibf_token'] || null;
+  }
+  if (!token) {
     return res.status(401).json({ error: 'Login required' });
   }
 
   let decoded;
   let userEmail;
   try {
-    decoded   = jwt.verify(authHeader.slice(7), JWT_SECRET);
+    decoded   = jwt.verify(token, JWT_SECRET);
     userEmail = decoded.email;
     if (!userEmail) throw new Error('No email in token');
   } catch {
@@ -76,6 +87,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ sessions });
   } catch (err) {
     console.error('History error:', err.message);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Failed to load history. Please try again later.' });
   }
 }

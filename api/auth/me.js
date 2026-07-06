@@ -1,8 +1,5 @@
-import { neonConfig, neon } from '@neondatabase/serverless';
-import ws from 'ws';
+import { neon } from '@neondatabase/serverless';
 import jwt from 'jsonwebtoken';
-
-neonConfig.webSocketConstructor = ws;
 
 const ALLOWED_ORIGINS = [
   'https://islamic-banking-fte.vercel.app',
@@ -54,12 +51,24 @@ export default async function handler(req, res) {
   if (!JWT_SECRET) return res.status(500).json({ error: 'JWT_SECRET not configured' });
 
   try {
+    // Check both Authorization header and HttpOnly cookie
+    let token = null;
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (authHeader?.startsWith('Bearer ')) {
+      token = authHeader.slice(7);
+    } else {
+      const cookies = (req.headers.cookie || '').split(';').reduce((acc, pair) => {
+        const [k, ...v] = pair.split('=');
+        acc[k.trim()] = v.join('=').trim();
+        return acc;
+      }, {});
+      token = cookies['ibf_token'] || null;
+    }
+    if (!token) {
       return res.status(401).json({ error: 'Authorization token required' });
     }
 
-    const decoded = jwt.verify(authHeader.slice(7), JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     const sql = neon(DATABASE_URL);
 
     const userRows = await sql`

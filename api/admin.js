@@ -3,11 +3,8 @@
 // Protected by ADMIN_PASSWORD env var (set in Vercel)
 // Usage: GET /api/admin — requires "Authorization: Bearer <password>" header
 
-import { neonConfig, neon } from '@neondatabase/serverless';
-import ws from 'ws';
+import { neon } from '@neondatabase/serverless';
 import crypto from 'crypto';
-
-neonConfig.webSocketConstructor = ws;
 
 const ALLOWED_ORIGINS = [
   'https://islamic-banking-fte.vercel.app',
@@ -177,6 +174,6 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error('admin error:', err.message);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Admin service temporarily unavailable.' });
   }
 }

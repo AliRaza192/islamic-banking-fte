@@ -22,12 +22,23 @@ export default async function handler(req, res) {
   if (!STRIPE_SECRET_KEY) return res.status(500).json({ error: 'Stripe not configured' });
 
   try {
-    // Verify JWT
+    // Verify JWT — check both header and cookie
+    let token = null;
     const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith('Bearer ')) {
+    if (authHeader?.startsWith('Bearer ')) {
+      token = authHeader.slice(7);
+    } else {
+      const cookies = (req.headers.cookie || '').split(';').reduce((acc, pair) => {
+        const [k, ...v] = pair.split('=');
+        acc[k.trim()] = v.join('=').trim();
+        return acc;
+      }, {});
+      token = cookies['ibf_token'] || null;
+    }
+    if (!token) {
       return res.status(401).json({ error: 'Login required' });
     }
-    const decoded = jwt.verify(authHeader.slice(7), JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     const sql = neon(DATABASE_URL);
 
     // Get user's Stripe customer ID from subscriptions
@@ -62,6 +73,6 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
     console.error('portal error:', err.message);
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: 'Failed to create billing portal. Please try again later.' });
   }
 }

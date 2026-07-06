@@ -37,13 +37,24 @@ export default async function handler(req, res) {
   if (!JWT_SECRET) return res.status(500).json({ error: 'JWT_SECRET not configured' });
 
   try {
-    // Verify auth
+    // Verify auth — check both header and cookie
+    let token = null;
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (authHeader?.startsWith('Bearer ')) {
+      token = authHeader.slice(7);
+    } else {
+      const cookies = (req.headers.cookie || '').split(';').reduce((acc, pair) => {
+        const [k, ...v] = pair.split('=');
+        acc[k.trim()] = v.join('=').trim();
+        return acc;
+      }, {});
+      token = cookies['ibf_token'] || null;
+    }
+    if (!token) {
       return res.status(401).json({ error: 'Login required to subscribe' });
     }
 
-    const decoded = jwt.verify(authHeader.slice(7), JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     const { tier, provider } = req.body || {};
 
     if (!tier || !TIER_PRICES[tier]) {
@@ -88,6 +99,6 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
     console.error('create-checkout error:', err.message);
-    return res.status(500).json({ error: err.message || 'Payment processing failed' });
+    return res.status(500).json({ error: 'Payment processing failed. Please try again later.' });
   }
 }

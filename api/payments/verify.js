@@ -18,11 +18,28 @@ function setCors(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
 }
 
+function parseCookies(cookieHeader) {
+  const cookies = {};
+  if (!cookieHeader) return cookies;
+  for (const pair of cookieHeader.split(';')) {
+    const [k, ...v] = pair.split('=');
+    cookies[k.trim()] = v.join('=').trim();
+  }
+  return cookies;
+}
+
 function verifyToken(req) {
   try {
+    let token = null;
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
-    return jwt.verify(authHeader.slice(7), process.env.JWT_SECRET);
+    if (authHeader?.startsWith('Bearer ')) {
+      token = authHeader.slice(7);
+    } else {
+      const cookies = parseCookies(req.headers.cookie);
+      token = cookies['ibf_token'] || null;
+    }
+    if (!token) return null;
+    return jwt.verify(token, process.env.JWT_SECRET);
   } catch {
     return null;
   }

@@ -1,86 +1,50 @@
 // =============================================
 // Islamic Banking FTE — auth.js
 // Email + OTP authentication module
+// Uses HttpOnly cookie for XSS-safe token storage
 // =============================================
 
 const AUTH = {
-  TOKEN_KEY: 'ibf_token',
   USER_KEY: 'ibf_user',
 
-  // Get stored token
-  getToken() {
-    return sessionStorage.getItem(this.TOKEN_KEY);
-  },
-
-  // Get stored user info
+  // Get stored user info (cached in sessionStorage for UI speed)
   getUser() {
     const raw = sessionStorage.getItem(this.USER_KEY);
     return raw ? JSON.parse(raw) : null;
   },
 
-  // Check if user is logged in
+  // Check if user is logged in (cookie is automatic, just check cached user)
   isLoggedIn() {
-    return !!this.getToken();
+    return !!this.getUser();
   },
 
-  // Store auth data
-  setAuth(token, user) {
-    sessionStorage.setItem(this.TOKEN_KEY, token);
+  // Store user info (token is in HttpOnly cookie now)
+  setAuth(_token, user) {
     sessionStorage.setItem(this.USER_KEY, JSON.stringify(user));
   },
 
-  // Update token only (e.g. after tier upgrade)
-  setToken(token) {
-    sessionStorage.setItem(this.TOKEN_KEY, token);
-  },
-
-  // Clear auth data
+  // Clear cached user data
   logout() {
-    sessionStorage.removeItem(this.TOKEN_KEY);
     sessionStorage.removeItem(this.USER_KEY);
+    // Call server to clear cookie
+    fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
     this.updateUI();
-  },
-
-  // Send OTP to email
-  async sendOTP(email) {
-    const res = await fetch('/api/auth/send-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
-    return data;
-  },
-
-  // Verify OTP and login
-  async verifyOTP(email, code) {
-    const res = await fetch('/api/auth/verify-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, code }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Verification failed');
-    this.setAuth(data.token, data.user);
-    this.updateUI();
-    return data;
   },
 
   // Get current user info from server
   async getMe() {
-    const token = this.getToken();
-    if (!token) return null;
-    const res = await fetch('/api/auth/me', {
-      headers: { 'Authorization': `Bearer ${token}` },
-    });
-    if (!res.ok) {
-      this.logout();
+    try {
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!res.ok) {
+        sessionStorage.removeItem(this.USER_KEY);
+        return null;
+      }
+      const data = await res.json();
+      sessionStorage.setItem(this.USER_KEY, JSON.stringify(data));
+      return data;
+    } catch {
       return null;
     }
-    const data = await res.json();
-    sessionStorage.setItem(this.USER_KEY, JSON.stringify(data));
-    return data;
   },
 
   // Update UI based on auth state
@@ -147,7 +111,14 @@ const AUTH = {
     errorEl.textContent = '';
 
     try {
-      await this.sendOTP(email);
+      const res = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
+
       document.getElementById('otpEmail').textContent = email;
       document.getElementById('emailStep').style.display = 'none';
       document.getElementById('otpStep').style.display = 'block';
@@ -177,8 +148,20 @@ const AUTH = {
     errorEl.textContent = '';
 
     try {
-      await this.verifyOTP(email, code);
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code }),
+        credentials: 'include',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Verification failed');
+
+      // Token is now in HttpOnly cookie — just cache user info
+      this.setAuth(null, data.user);
+      this.updateUI();
       this.hideModal();
+
       // Refresh data after login to get accurate queries_today
       try {
         const freshUser = await AUTH.getMe();

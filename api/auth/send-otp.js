@@ -1,8 +1,33 @@
-import { neonConfig, neon } from "@neondatabase/serverless";
-import ws from "ws";
+import { neon } from "@neondatabase/serverless";
 import crypto from "crypto";
 
-neonConfig.webSocketConstructor = ws;
+// ---- IP-based rate limiting (in-memory) ----
+// Max 10 OTP requests per IP per hour
+const ipRateLimits = globalThis.__otpIpLimits || (globalThis.__otpIpLimits = new Map());
+const IP_LIMIT = 10;
+const IP_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
+function checkIpRateLimit(ip) {
+  const now = Date.now();
+  const record = ipRateLimits.get(ip);
+  if (!record || now - record.start > IP_WINDOW_MS) {
+    ipRateLimits.set(ip, { start: now, count: 1 });
+    return { allowed: true, remaining: IP_LIMIT - 1 };
+  }
+  if (record.count >= IP_LIMIT) {
+    return { allowed: false, remaining: 0 };
+  }
+  record.count++;
+  return { allowed: true, remaining: IP_LIMIT - record.count };
+}
+
+// Cleanup old entries every 10 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, record] of ipRateLimits) {
+    if (now - record.start > IP_WINDOW_MS) ipRateLimits.delete(ip);
+  }
+}, 10 * 60 * 1000);
 
 const ALLOWED_ORIGINS = [
   "https://islamic-banking-fte.vercel.app",
@@ -18,6 +43,12 @@ function setCors(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Access-Control-Allow-Credentials", "true");
+}
+
+function getClientIP(req) {
+  const forwarded = req.headers["x-forwarded-for"];
+  if (forwarded) return forwarded.split(",")[0].trim();
+  return req.socket?.remoteAddress || "unknown";
 }
 
 function generateOTP() {
@@ -51,6 +82,13 @@ export default async function handler(req, res) {
   }
 
   try {
+    // IP-based rate limit check
+    const clientIP = getClientIP(req);
+    const ipLimit = checkIpRateLimit(clientIP);
+    if (!ipLimit.allowed) {
+      return res.status(429).json({ error: "Too many requests. Please try again later." });
+    }
+
     const { email } = req.body || {};
     const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
     if (!email || !emailRegex.test(email.trim())) {

@@ -1,16 +1,23 @@
-import { neonConfig, neon } from "@neondatabase/serverless";
-import ws from "ws";
+import { neon } from "@neondatabase/serverless";
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
-neonConfig.webSocketConstructor = ws;
-
-const ALLOWED_ORIGINS = [
-  'https://islamic-banking-fte.vercel.app',
-  'http://localhost:8000',
-  'http://localhost:3000',
-];
+function parseCookies(cookieHeader) {
+  const cookies = {};
+  if (!cookieHeader) return cookies;
+  for (const pair of cookieHeader.split(';')) {
+    const [key, ...rest] = pair.split('=');
+    cookies[key.trim()] = rest.join('=').trim();
+  }
+  return cookies;
+}
 
 function setCors(req, res) {
+  const ALLOWED_ORIGINS = [
+    'https://islamic-banking-fte.vercel.app',
+    'http://localhost:8000',
+    'http://localhost:3000',
+  ];
   const origin = req.headers.origin;
   if (ALLOWED_ORIGINS.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
@@ -69,7 +76,11 @@ export default async function handler(req, res) {
       return res.status(429).json({ error: 'Too many incorrect attempts. Please request a new OTP.' });
     }
 
-    if (otpRows[0].code !== code.trim()) {
+    // Timing-safe comparison to prevent timing attacks
+    const storedCode = otpRows[0].code;
+    const submittedCode = code.trim();
+    if (storedCode.length !== submittedCode.length ||
+        !crypto.timingSafeEqual(Buffer.from(storedCode), Buffer.from(submittedCode))) {
       await sql`UPDATE otps SET failed_attempts = failed_attempts + 1 WHERE id = ${otpRows[0].id}`;
       return res.status(400).json({ error: 'Incorrect OTP code' });
     }
@@ -97,12 +108,23 @@ export default async function handler(req, res) {
     const token = jwt.sign(
       { userId: user.id, email: user.email, tier: user.tier },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '1d' }
     );
+
+    // Set HttpOnly cookie — XSS-safe token storage
+    const isProd = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+    const cookie = [
+      `ibf_token=${token}`,
+      'Path=/',
+      'HttpOnly',
+      'Secure',
+      `SameSite=${isProd ? 'Strict' : 'Lax'}`,
+      'Max-Age=86400',
+    ].join('; ');
+    res.setHeader('Set-Cookie', cookie);
 
     return res.status(200).json({
       success: true,
-      token,
       user: {
         email: user.email,
         tier: user.tier,
