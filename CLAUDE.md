@@ -1,3 +1,9 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
 # 🕌 Islamic Banking Digital FTE — CLAUDE.md
 
 ## Project Overview
@@ -202,11 +208,252 @@ as you can within your scope.
 
 - AI Model: Google Gemini 2.5 Flash (free tier, 1500 req/day)
 - Database: Neon PostgreSQL (conversation logging)
-- Deployment: Vercel (web chat interface)
+- Deployment: Vercel (Hobby plan — 100 serverless functions max)
 - Build Tool: Claude Code (AgentFactory methodology)
+- Frontend: Vanilla ES6 (no framework) — PWA installable
 - Methodology: agentfactory.panaversity.org
 - Standards: AAOIFI FAS 2/3/4/8/9/32, Shariah Standards 17/21/26
 
+---
+
+# 🛠️ Development Guide
+
+## Common Commands
+
+**Start local dev server:**
+```bash
+vercel dev
+# Opens http://localhost:3000
+# Hot-reloads on file changes
+```
+
+**Run structure validation evals:**
+```bash
+python3 evals/run-evals.py
+# Validates routing-golden.json, calculations.json, references
+# Does NOT require running server
+```
+
+**Run live API evals (against local server):**
+```bash
+# Terminal 1
+vercel dev
+
+# Terminal 2
+python3 evals/run-evals.py --live
+# Tests actual /api/chat responses
+# Requires server running at http://localhost:3000
+```
+
+**Run live evals against production:**
+```bash
+python3 evals/run-evals.py --live --base-url https://islamic-banking-fte.vercel.app
+```
+
+**Validate skill routing (routing-golden.json):**
+```bash
+python3 scripts/validate-routing.py
+# Ensures every test case has required fields
+# Checks for jurisdiction/skill coverage
+```
+
+**Initialize database (first time):**
+```bash
+psql $DATABASE_URL < schema.sql
+```
+
+**Deploy to production:**
+```bash
+vercel --prod
+# Requires Vercel CLI: npm i -g vercel
+```
+
+---
+
+## Architecture Overview
+
+### Request Flow (Chat Endpoint)
+```
+POST /api/chat
+  → api/chat.js:handleRequest()
+    → detectSkills(userMessage)        [regex pattern matching]
+    → detectJurisdiction(message)      [country keywords]
+    → loadSkill(skillName)             [read skills/<skill>/SKILL.md]
+    → loadJurisdiction(jurisdiction)   [read references/jurisdictions/...]
+    → buildSystemPrompt()              [combine role + skill + jurisdiction]
+    → callGemini(systemPrompt, history, userMessage)
+    → enforceDisclaimer()              [append Shariah disclaimer]
+    → storeInDatabase()                [PostgreSQL conversation history]
+    → return response
+```
+
+### Skill Loading Pattern
+Skills are loaded **dynamically from disk** at request time:
+- File-based, not hardcoded — enables rapid iteration without deploys
+- `detectSkills()` matches user message keywords to skill names
+- `loadFile(path)` reads from `skills/<skill-name>/SKILL.md`
+- Skills are injected into the Gemini system prompt as context
+
+**Location:** `api/chat.js:18-220` (detectSkills, loadFile, buildSystemPrompt)
+
+### Key Constraints (Vercel Hobby Plan)
+
+1. **100 serverless functions max** — All API logic merged into 6 files (chat, auth, payments, data, user, admin)
+   - One file per logical domain, not one per endpoint
+   - Use `?action=` query params to route within files
+2. **Free tier rate limits** — Gemini: 1500 req/day, Neon: limited connections
+   - Circuit-breaker fallback in `api/chat.js:769-801`
+   - Graceful error messages when limits hit
+3. **No persistent server memory** — Every request is stateless
+   - Use PostgreSQL for conversation history (stored in `messages` table)
+   - Session ID passed by frontend, retrieved from DB each request
+
+---
+
+## Database Setup
+
+**Schema location:** `schema.sql` (4 tables + indexes)
+
+**Tables:**
+- `sessions` — One row per user chat session; stores user_email, metadata
+- `messages` — Conversation history (role: 'user' | 'model'); indexed by session_id
+- `queries_log` — Analytics; tracks which skill was used
+- `rate_limits` — Per-IP rate limiting; (ip, req_date) as primary key
+
+**Setup:**
+```bash
+# One-time: run schema.sql against Neon PostgreSQL
+psql $DATABASE_URL < schema.sql
+
+# Verify
+psql $DATABASE_URL -c "\dt"    # List tables
+psql $DATABASE_URL -c "\di"    # List indexes
+```
+
+**Connection in code:**
+```javascript
+import { neon } from "@neondatabase/serverless";
+const sql = neon(process.env.DATABASE_URL);
+```
+
+---
+
+## File Organization
+
+**API Logic** — `api/`
+- `chat.js` (1319 lines) — Main Gemini proxy, skill routing, disclaimer enforcement
+- `data.js` — Static data endpoints (rates, banks, health check)
+- `payments.js` — Stripe webhook handler, checkout session creation
+- `user.js` — Conversation history, feedback logging
+- `admin.js` — Rate admin, cleanup tasks
+- `auth/` — OTP/JWT (send-otp.js, verify-otp.js, me.js)
+
+**Frontend** — `web/`
+- `index.html` → redirects to `landing.html`
+- `landing.html` — Marketing landing page
+- `chat.html` — Main chat interface
+- `calculators.html` — Finance calculators (5 tools)
+- `banks.html` — Pakistan banks directory
+- `dashboard.html` — User dashboard
+- `app.js` — Chat UI logic, auth flows
+- `sw.js` — Service worker (PWA installable app)
+- `js/calculators.js` — Deterministic finance calculation formulas
+
+**Skills** — `skills/<skill-name>/`
+- `SKILL.md` — Skill definition (injected into Gemini system prompt)
+- Each skill is ~2000-4000 words of domain expertise
+
+**Jurisdiction Overlays** — `skills/islamic-finance-router/references/jurisdictions/<country>.md`
+- Pakistan, UAE, Saudi Arabia, Malaysia, etc.
+- Loaded dynamically based on detected country keywords
+
+**References** — `references/`
+- `products.md` — Product definitions (Murabaha, Ijara, etc.)
+- `calculations.md` — Formulas for all calculators
+- `shariah-rules.md` — Riba, Gharar, Maysir definitions
+- `nisab-table.md` — Current Nisab values (gold/silver) with date
+- `pakistan-banks.md` — Meezan, DIB, Islamic, etc. with contact info
+
+**Config** — Root level
+- `vercel.json` — Deployment config, rewrites, CSP headers
+- `package.json` — Dependencies (Gemini SDK, Neon, Stripe, Resend, JWT)
+- `.env.example` — Template for required env vars
+- `schema.sql` — PostgreSQL initial schema
+
+---
+
+## Common Debugging Patterns
+
+**Test skill routing without Gemini:**
+```bash
+# Manually test detectSkills() logic
+node -e "
+const msg = 'help me calculate murabaha profit';
+const skills = msg.toLowerCase().includes('murabaha') ? ['murabaha-specialist'] : [];
+console.log(skills);
+"
+```
+
+**Inspect what skill was loaded:**
+In `api/chat.js`, add before `callGemini()`:
+```javascript
+console.error('DEBUG: Skills detected:', skills);
+console.error('DEBUG: Jurisdiction:', jurisdiction);
+console.error('DEBUG: System prompt length:', systemPrompt.length);
+```
+
+**Test a skill locally:**
+```bash
+# Read skill definition
+cat skills/murabaha-specialist/SKILL.md | head -100
+```
+
+**Check jurisdiction overlay:**
+```bash
+# Verify jurisdiction was loaded correctly
+cat skills/islamic-finance-router/references/jurisdictions/pakistan.md | head -50
+```
+
+**Database debugging:**
+```bash
+# Check conversation history for a session
+psql $DATABASE_URL -c "SELECT * FROM messages WHERE session_id = 'YOUR_SESSION_ID' ORDER BY created_at;"
+
+# View rate limits
+psql $DATABASE_URL -c "SELECT * FROM rate_limits WHERE req_date = CURRENT_DATE;"
+```
+
+**Test calculations locally:**
+```bash
+node -e "
+const c = await import('./web/js/calculators.js');
+const result = c.calculateMurabaha(1000000, 0.08, 5);
+console.log(result);
+"
+```
+
+---
+
+## Testing & Quality Assurance
+
+**Evals structure** — `evals/run-evals.py`
+- Loads test cases from `evals/*.json` (routing-golden.json, calculations.json, etc.)
+- Validates structure: required fields, coverage, consistency
+- Live mode: calls `/api/chat` and verifies response contains expected skill name
+
+**Add a new test case:**
+1. Edit `evals/routing-golden.json`
+2. Add object with: `id`, `query`, `expected_skill`, `expected_jurisdiction`, `category`
+3. Run: `python3 evals/run-evals.py`
+
+**Pre-commit:**
+```bash
+python3 evals/run-evals.py  # Ensures no regressions
+# If passes, safe to commit
+```
+
+---
+
 ## Version
 
-Plugin Version: 1.0.0 | Last Updated: May 2026
+Plugin Version: 1.0.0 | Last Updated: July 2026

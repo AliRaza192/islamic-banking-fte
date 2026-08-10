@@ -443,7 +443,7 @@ function buildSystemPrompt(userMessage) {
 
 // ---- Input Validation ----
 function validateInput(body) {
-  const { contents } = body;
+  let { contents } = body;
   if (!contents || !Array.isArray(contents) || contents.length === 0)
     return "Invalid request: contents missing";
   if (contents.length > 60) {
@@ -964,6 +964,10 @@ export default async function handler(req, res) {
 
     const skillName = detectSkills(userMsg)[0];
 
+    // Pre-declare session history and user profile blocks (used in system prompt build)
+    let sessionHistoryBlock = "";
+    let userProfileBlock = "";
+
     // 3a. Fetch live nisab rates for zakat-advisor
     let liveNisabBlock = "";
     let liveNisab = null;
@@ -980,8 +984,8 @@ export default async function handler(req, res) {
         if (ratesRes.ok) {
           const rates = await ratesRes.json();
           liveNisab = rates;
-          const reliabilityLabel = rates.reliability?.gold === 'live' ? '🔴 Live' : '⚪ Estimated';
-          liveNisabBlock = `\n\n---\n\n## LIVE NISAB VALUES\n📅 Fetched: ${new Date(rates.updated).toLocaleString('en-PK', { timeZone: 'Asia/Karachi' })}\n\n| Metal | Nisab | Rate | Reliability |\n|-------|-------|------|-------------|\n| Gold (87.48g) | PKR ${rates.nisab_gold_pkr.toLocaleString()} | ${rates.gold_pkr_per_tola.toLocaleString()}/tola | ${rates.labels?.gold || reliabilityLabel} |\n| Silver (612.36g) | PKR ${rates.nisab_silver_pkr.toLocaleString()} | ${rates.silver_pkr_per_tola.toLocaleString()}/tola | ⚪ Estimated |\n\n⚠️ **Note:** ${rates.reliability?.gold === 'live' ? 'Gold rate fetched live from API' : 'Gold/Silver rates are estimated — verify with current market rates before making Zakat decisions'}\n\nUse THESE live values for all nisab calculations instead of any hardcoded figures.`;
+          const reliabilityLabel = '⚪ Estimated';
+          liveNisabBlock = `\n\n---\n\n## LIVE NISAB VALUES\n📅 Fetched: ${new Date(rates.lastUpdated).toLocaleString('en-PK', { timeZone: 'Asia/Karachi' })}\n\n| Metal | Nisab | Rate | Reliability |\n|-------|-------|------|-------------|\n| Gold (87.48g) | PKR ${rates.nisab.gold.toLocaleString()} | ${rates.gold.pkrsPerTola.toLocaleString()}/tola | ${reliabilityLabel} |\n| Silver (612.36g) | PKR ${rates.nisab.silver.toLocaleString()} | ${rates.silver.pkrsPerTola.toLocaleString()}/tola | ⚪ Estimated |\n\n⚠️ **Note:** Gold/Silver rates are estimated — verify with current market rates before making Zakat decisions\n\nUse THESE live values for all nisab calculations instead of any hardcoded figures.`;
         }
       } catch (err) {
         console.error("Live nisab rates fetch failed:", err.message);
@@ -1011,7 +1015,6 @@ export default async function handler(req, res) {
     }
 
     // 4b. Session Memory — Load last 5 messages for conversation continuity
-    let sessionHistoryBlock = "";
     if (sql && session_id) {
       try {
         const recentMessages = await sql`
@@ -1036,7 +1039,6 @@ export default async function handler(req, res) {
     }
 
     // 4c. User Profile — Extract preferences and load profile
-    let userProfileBlock = "";
     if (sql && user?.userId) {
       try {
         // Load existing profile

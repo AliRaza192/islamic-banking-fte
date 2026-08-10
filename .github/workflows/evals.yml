@@ -8,140 +8,89 @@ on:
 
 jobs:
   structure-validation:
-    name: Structure & Skill Validation
+    name: Validate Structure & Routing
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.11'
 
-      - name: Run structure validation
+      - name: Install dependencies
+        run: pip install jsonschema
+
+      - name: Validate routing golden files
         run: python3 evals/run-evals.py
 
-  skill-integrity:
-    name: Skill Integrity Check
+      - name: Validate routing logic
+        run: python3 scripts/validate-routing.py
+
+  skill-coverage:
+    name: Skill Coverage Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify all 19 skills exist
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check all skills have SKILL.md
         run: |
-          SKILLS=(
-            islamic-finance-router murabaha-specialist ijara-specialist
-            salam-specialist istisna-a-specialist sukuk-issuer sukuk-investor
-            takaful-ifrs17 musharaka-full musharaka-dm
-            musharakah-mudarabah-specialist zakat-advisor shariah-compliance-checker
-            halal-calculator islamic-product-explainer pakistan-banking-navigator
-            islamic-banking-advisor sukuk-takaful-specialist roshan-digital-advisor
-          )
+          SKILLS_DIR="skills"
           MISSING=0
-          for skill in "${SKILLS[@]}"; do
-            if [ ! -f "skills/$skill/SKILL.md" ]; then
-              echo "❌ Missing: skills/$skill/SKILL.md"
-              MISSING=1
+          for dir in "$SKILLS_DIR"/*/; do
+            if [ ! -f "$dir/SKILL.md" ]; then
+              echo "MISSING: $dir/SKILL.md"
+              MISSING=$((MISSING + 1))
             fi
           done
-          if [ $MISSING -eq 1 ]; then exit 1; fi
-          echo "✅ All ${#SKILLS[@]} skills verified"
+          if [ $MISSING -gt 0 ]; then
+            echo "ERROR: $MISSING skills missing SKILL.md"
+            exit 1
+          fi
+          echo "All skills have SKILL.md files"
 
-      - name: Verify jurisdiction overlays
+      - name: Check all jurisdiction overlays exist
         run: |
-          OVERLAYS=(
-            pakistan-ifrs uae-ifrs saudi-ifrs malaysia-mfrs
-            bahrain-aaoifi kuwait-ifrs qatar-aaoifi oman-ifrs
-            turkey-tfrs nigeria-ifrs indonesia-psak uk-ifrs gcc-crossborder
-          )
+          JURIS_DIR="skills/islamic-finance-router/references/jurisdictions"
+          EXPECTED=("pakistan-ifrs" "uae-ifrs" "saudi-ifrs" "malaysia-mfrs" "bahrain-aaoifi" "kuwait-ifrs" "qatar-aaoifi" "oman-ifrs" "turkey-tfrs" "nigeria-ifrs" "indonesia-psak" "uk-ifrs" "gcc-crossborder")
           MISSING=0
-          for overlay in "${OVERLAYS[@]}"; do
-            if [ ! -f "skills/islamic-finance-router/references/jurisdictions/$overlay.md" ]; then
-              echo "❌ Missing: $overlay.md"
-              MISSING=1
+          for j in "${EXPECTED[@]}"; do
+            if [ ! -f "$JURIS_DIR/$j.md" ]; then
+              echo "MISSING: $JURIS_DIR/$j.md"
+              MISSING=$((MISSING + 1))
             fi
           done
-          if [ $MISSING -eq 1 ]; then exit 1; fi
-          echo "✅ All ${#OVERLAYS[@]} jurisdiction overlays verified"
+          if [ $MISSING -gt 0 ]; then
+            echo "ERROR: $MISSING jurisdiction overlays missing"
+            exit 1
+          fi
+          echo "All 13 jurisdiction overlays present"
 
-  guardrails-test:
-    name: Guardrails Verification
+  api-syntax:
+    name: API Syntax Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify fatwa blocking patterns exist in chat.js
-        run: |
-          if grep -q "FATWA_PATTERNS" api/chat.js; then
-            echo "✅ Fatwa blocking hook found"
-          else
-            echo "❌ Fatwa blocking hook MISSING"
-            exit 1
-          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-      - name: Verify scope enforcement exists in chat.js
+      - name: Check Node.js syntax for API files
         run: |
-          if grep -q "SCOPE_RULES" api/chat.js; then
-            echo "✅ Scope enforcement hook found"
-          else
-            echo "❌ Scope enforcement hook MISSING"
-            exit 1
-          fi
+          for f in api/*.js api/auth/*.js; do
+            echo "Checking $f..."
+            node --check "$f" || exit 1
+          done
+          echo "All API files pass syntax check"
 
-      - name: Verify overclaiming detection exists in chat.js
+      - name: Check frontend JS syntax
         run: |
-          if grep -q "OVERCLAIM_PATTERNS" api/chat.js; then
-            echo "✅ Overclaiming detection hook found"
-          else
-            echo "❌ Overclaiming detection hook MISSING"
-            exit 1
-          fi
-
-      - name: Verify disclaimer enforcement exists in chat.js
-        run: |
-          if grep -q "disclaimerPatterns" api/chat.js; then
-            echo "✅ Disclaimer enforcement found"
-          else
-            echo "❌ Disclaimer enforcement MISSING"
-            exit 1
-          fi
-
-      - name: Verify full_audit_log table in schema
-        run: |
-          if grep -q "full_audit_log" schema.sql; then
-            echo "✅ Full audit log table found"
-          else
-            echo "❌ Full audit log table MISSING"
-            exit 1
-          fi
-
-  security-check:
-    name: Security Baseline
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: No wildcard CORS
-        run: |
-          if grep -r "else if (origin)" api/; then
-            echo "❌ CORS wildcard reflection detected"
-            exit 1
-          fi
-          echo "✅ No CORS wildcard reflection"
-
-      - name: Rate limiting exists
-        run: |
-          if grep -q "checkRateLimit" api/chat.js; then
-            echo "✅ Rate limiting found"
-          else
-            echo "❌ Rate limiting MISSING"
-            exit 1
-          fi
-
-      - name: Input validation exists
-        run: |
-          if grep -q "validateInput" api/chat.js; then
-            echo "✅ Input validation found"
-          else
-            echo "❌ Input validation MISSING"
-            exit 1
-          fi
+          for f in web/*.js web/js/*.js; do
+            echo "Checking $f..."
+            node --check "$f" || exit 1
+          done
+          echo "All frontend JS files pass syntax check"

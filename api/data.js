@@ -20,13 +20,7 @@ function setCors(req, res) {
 
 // ---- Rates Cache ----
 const ratesCache = { data: null, ts: 0 };
-const KIBOR_CACHE = { data: null, ts: 0 };
 const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 hours
-const KIBOR_TTL = 12 * 60 * 60 * 1000; // 12 hours
-
-// ---- Bank Rates (12h cache) ----
-const bankRatesCache = { data: null, ts: 0 };
-const BANK_CACHE_TTL = 12 * 60 * 60 * 1000;
 
 const BANK_RATES = [
   { bank: 'Meezan Bank', products: [
@@ -77,14 +71,19 @@ const BANK_RATES = [
     { type: 'personal', name: 'Soneri Islamic Personal Finance', rate: '19.5-23.5%', benchmark: 'KIBOR', method: 'Murabaha' },
     { type: 'business', name: 'Soneri Islamic Business Finance', rate: '17-20%', benchmark: 'KIBOR', method: 'Murabaha' },
   ]},
+  { bank: 'Habib Metropolitan Islamic', products: [
+    { type: 'car', name: 'Habib Metro Car Ijara', rate: '17-20%', benchmark: 'KIBOR', method: 'Ijara' },
+    { type: 'home', name: 'Habib Metro Home Finance', rate: '17.5-20.5%', benchmark: 'KIBOR', method: 'Diminishing Musharakah' },
+    { type: 'business', name: 'Habib Metro Business Murabaha', rate: '16.5-19.5%', benchmark: 'KIBOR', method: 'Murabaha' },
+  ]},
 ];
 
 const BANK_COMPARISON = [
   { name: 'Meezan Bank', shariah_board: 'Mufti Muhammad Taqi Usmani', app: 'Meezan Bank App', branches: '1000+', strengths: ['Largest Islamic bank', 'Full product range', 'Strong digital presence'] },
-  { name: 'Albilad Bank', shariah_board: 'AAOIFI certified', app: 'Albilad Mobile', branches: '200+', strengths: ['Competitive rates', 'GCC presence', 'Modern digital banking'] },
-  { name: 'Dubai Islamic Bank', shariah_board: 'Shariah Supervisory Board', app: 'DIB Mobile App', branches: '150+', strengths: ['Strong brand', 'Innovative products', 'International presence'] },
+  { name: 'Dubai Islamic Bank', shariah_board: 'Shariah Supervisory Board', app: 'DIB Mobile App', branches: '300+', strengths: ['Strong brand', 'Innovative products', 'International presence'] },
+  { name: 'Bank Islami', shariah_board: 'Shariah Advisory Committee', app: 'BankIslami App', branches: '350+', strengths: ['Digital banking', 'Roshan account', 'Competitive rates'] },
   { name: 'Faysal Bank', shariah_board: 'Shariah Advisory Committee', app: 'Faysal Islamic App', branches: '800+', strengths: ['Wide branch network', 'Competitive pricing', 'Strong SME focus'] },
-  { name: 'HBL', shariah_board: 'Shariah Board', app: 'HBL Mobile', branches: '1500+', strengths: ['Largest bank network', 'Strong digital platform', 'International presence'] },
+  { name: 'Al Baraka Bank', shariah_board: 'AAOIFI certified', app: 'Al Baraka App', branches: '250+', strengths: ['Gulf remittance corridors', 'International presence', 'Musharakah products'] },
 ];
 
 // ---- Handlers ----
@@ -137,11 +136,6 @@ async function handleRates(req, res) {
 }
 
 function handleBanks(req, res) {
-  const now = Date.now();
-  if (bankRatesCache.data && now - bankRatesCache.ts < BANK_CACHE_TTL) {
-    return res.status(200).json(bankRatesCache.data);
-  }
-
   const url = new URL(req.url, `https://${req.headers.host}`);
   const bank = url.searchParams.get('bank');
   const product = url.searchParams.get('product');
@@ -151,8 +145,6 @@ function handleBanks(req, res) {
   if (product) filtered = filtered.map(b => ({ ...b, products: b.products.filter(p => p.type === product) })).filter(b => b.products.length > 0);
 
   const result = { banks: filtered, lastUpdated: new Date().toISOString() };
-  bankRatesCache.data = result;
-  bankRatesCache.ts = now;
   return res.status(200).json(result);
 }
 
@@ -167,7 +159,6 @@ function handleCompare(req, res) {
     return res.status(200).json(found);
   }
 
-  const url2 = new URL(req.url, `https://${req.headers.host}`);
   if (req.method === 'POST') {
     const body = req.body || {};
     const type = body.type || productType;

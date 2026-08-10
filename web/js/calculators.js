@@ -142,8 +142,8 @@ const IslamicCalc = {
     receivables    = 0,  // Money others owe you
     liabilities    = 0,  // Debts you must pay NOW
     // Live rates injected from /api/rates, fallback to June 2026 estimates
-    goldRatePerTola   = (window._liveRates?.gold_pkr_per_tola)   || 330000,
-    silverRatePerTola = (window._liveRates?.silver_pkr_per_tola) || 2450,
+    goldRatePerTola   = (window._liveRates?.gold?.pkrsPerTola)   || 330000,
+    silverRatePerTola = (window._liveRates?.silver?.pkrsPerTola) || 3100,
   }) {
     const GOLD_RATE_PER_TOLA   = goldRatePerTola;
     const SILVER_RATE_PER_TOLA = silverRatePerTola;
@@ -308,47 +308,10 @@ window.IslamicCalc = IslamicCalc;
     const goldEl   = document.getElementById('live-gold-rate');
     const silverEl = document.getElementById('live-silver-rate');
     const updEl    = document.getElementById('live-rates-updated');
-    if (goldEl)   goldEl.textContent   = IslamicCalc.formatPKR(data.gold_pkr_per_tola) + '/tola';
-    if (silverEl) silverEl.textContent = IslamicCalc.formatPKR(data.silver_pkr_per_tola) + '/tola';
-    if (updEl)    updEl.textContent    = 'Live — ' + new Date(data.updated).toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' });
+    if (goldEl)   goldEl.textContent   = IslamicCalc.formatPKR(data.gold.pkrsPerTola) + '/tola';
+    if (silverEl) silverEl.textContent = IslamicCalc.formatPKR(data.silver.pkrsPerTola) + '/tola';
+    if (updEl)    updEl.textContent    = 'Live — ' + new Date(data.lastUpdated).toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' });
   } catch {
     // silently use hardcoded fallback
   }
 })();
-
-// ─── DIMINISHING MUSHARAKAH CALCULATOR ──────────────────────────────────────
-function calculateDiminishingMusharakah(propertyValue, customerContribution, annualProfitRate, tenureYears) {
-  const bankShare = propertyValue - customerContribution;
-  const monthlyRate = annualProfitRate / 100 / 12;
-  const totalMonths = tenureYears * 12;
-  const monthlyPrincipal = bankShare / totalMonths;
-
-  let totalPayment = 0;
-  for (let m = 0; m < totalMonths; m++) {
-    const remainingBank = bankShare - (monthlyPrincipal * m);
-    totalPayment += monthlyPrincipal + (remainingBank * monthlyRate);
-  }
-
-  const firstMonthTotal = monthlyPrincipal + (bankShare * monthlyRate);
-  const lastMonthTotal = monthlyPrincipal + (monthlyPrincipal * monthlyRate);
-  const avgMonthly = totalPayment / totalMonths;
-
-  return {
-    bankShare: formatPKR(bankShare),
-    firstMonthInstallment: formatPKR(Math.round(firstMonthTotal)),
-    lastMonthInstallment: formatPKR(Math.round(lastMonthTotal)),
-    avgMonthlyInstallment: formatPKR(Math.round(avgMonthly)),
-    totalPayment: formatPKR(Math.round(totalPayment)),
-    totalProfit: formatPKR(Math.round(totalPayment - bankShare)),
-    tenure: tenureYears + ' years'
-  };
-}
-
-// ─── PKR FORMATTER ───────────────────────────────────────────────────────────
-function formatPKR(amount) {
-  const n = Math.round(amount);
-  if (n >= 100_000_000) return `PKR ${(n / 100_000_000).toFixed(2)} arab`;
-  if (n >= 10_000_000)  return `PKR ${(n / 10_000_000).toFixed(2)} crore`;
-  if (n >= 100_000)     return `PKR ${(n / 100_000).toFixed(2)} lakh`;
-  return `PKR ${n.toLocaleString('en-PK')}`;
-}

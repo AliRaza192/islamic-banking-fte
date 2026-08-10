@@ -2,7 +2,7 @@
 
 > **بسم الله الرحمن الرحيم**
 
-Pakistan's first AI-powered Islamic Banking Digital FTE (Full-Time Employee) — providing 24/7 Shariah-compliant financial guidance in Urdu & English.
+Pakistan's first AI-powered Islamic Banking Digital FTE (Full-Time Employee) — providing 24/7 Shariah-compliant financial guidance in Urdu & English across 13 global jurisdictions.
 
 **Live Demo:** [islamic-banking-fte.vercel.app](https://islamic-banking-fte.vercel.app)
 
@@ -13,16 +13,20 @@ Pakistan's first AI-powered Islamic Banking Digital FTE (Full-Time Employee) —
 | Feature | Status |
 |---|---|
 | 🤖 AI Chat (Gemini 2.5 Flash) | ✅ Live |
-| 📊 Islamic Finance Calculators | ✅ Live |
-| 🏦 Pakistan Banks Directory | ✅ Live |
-| 🌙 Zakat Calculator | ✅ Live |
+| 📊 6 Islamic Finance Calculators | ✅ Live |
+| 🏦 13 Pakistan Banks Directory | ✅ Live |
+| 🌙 Zakat Calculator (Live Rates) | ✅ Live |
 | ✅ Shariah Compliance Checker | ✅ Live |
 | 🔐 OTP Email Authentication | ✅ Live |
-| 💎 Pricing Plans (Free/Premium/Pro) | ✅ Live |
+| 💎 3-Tier Pricing (Free/Premium/Pro) | ✅ Live |
 | 💳 Stripe Payments | ✅ Live |
 | 📱 PWA (Installable App) | ✅ Live |
-| 🌐 Urdu Script Toggle | ✅ Live |
+| 🌐 Urdu/English Bilingual | ✅ Live |
 | 📈 User Dashboard | ✅ Live |
+| 🔧 Admin Dashboard | ✅ Live |
+| 🌍 13 Jurisdiction Overlays | ✅ Live |
+| 🧠 19 AI Specialist Skills | ✅ Live |
+| 🛡️ Security (XSS, Injection, Toxicity) | ✅ Live |
 
 ---
 
@@ -34,10 +38,11 @@ Pakistan's first AI-powered Islamic Banking Digital FTE (Full-Time Employee) —
 | AI Model | Google Gemini 2.5 Flash |
 | Backend | Vercel Serverless Functions (Node.js ESM) |
 | Database | Neon PostgreSQL (serverless) |
-| Auth | Email OTP via Resend |
-| Payments | Stripe (international) + JazzCash (Pakistan) |
+| Auth | Email OTP via Resend + JWT |
+| Payments | Stripe (subscription management) |
 | Hosting | Vercel (free tier) |
 | Methodology | Panaversity AgentFactory |
+| Standards | AAOIFI FAS 2/3/4/8/9/32, Shariah Standards 17/21/26 |
 
 **Monthly cost at scale:** ~$0 on free tiers
 
@@ -47,46 +52,49 @@ Pakistan's first AI-powered Islamic Banking Digital FTE (Full-Time Employee) —
 
 ```
 islamic-banking-fte/
-├── .claude-plugin/          # AgentFactory plugin metadata
 ├── api/
-│   ├── chat.js              # Main AI proxy — Gemini + system prompt
-│   ├── health.js            # Health check endpoint
-│   ├── history.js           # Conversation history
+│   ├── chat.js              # Main AI proxy + skill routing (1300+ lines)
+│   ├── data.js              # Rates, banks, compare, health endpoints
+│   ├── payments.js          # Stripe checkout, webhooks, portal
+│   ├── user.js              # History, feedback
+│   ├── admin.js             # Stats, rate management, cleanup
+│   ├── calculate.js         # Deterministic financial calculations
 │   ├── auth/
 │   │   ├── send-otp.js      # Send OTP via Resend
-│   │   ├── verify-otp.js    # Verify OTP + issue token
-│   │   └── me.js            # Token verify + user data
-│   └── payments/
-│       ├── create-checkout.js   # Stripe checkout session
-│       ├── stripe-webhook.js    # Stripe webhook handler
-│       ├── verify.js            # Payment verification
-│       ├── jazzcash-init.js     # JazzCash payment init
-│       └── jazzcash-callback.js # JazzCash callback
-├── commands/                # Slash command definitions
-├── evals/                   # Test cases for AI responses
-├── hooks/                   # AgentFactory lifecycle hooks
-├── references/              # Pakistan banks, products data
-├── skills/                  # 10 specialist Islamic finance skills
+│   │   ├── verify-otp.js    # Verify OTP + issue JWT
+│   │   └── me.js            # User info + logout
+│   └── lib/                 # Shared utilities (unused, for future)
 ├── web/
-│   ├── index.html           # (redirects to landing)
 │   ├── landing.html         # Marketing landing page
 │   ├── chat.html            # Main AI chat interface
-│   ├── calculators.html     # Islamic finance calculators
-│   ├── banks.html           # Pakistan banks directory
-│   ├── pricing.html         # Pricing plans
+│   ├── calculators.html     # 6 Islamic finance calculators
+│   ├── banks.html           # 13 Pakistan banks directory
+│   ├── pricing.html         # 3-tier pricing
 │   ├── dashboard.html       # User dashboard
+│   ├── admin.html           # Admin dashboard
+│   ├── privacy.html         # Privacy policy (bilingual)
 │   ├── app.js               # Chat UI logic
 │   ├── auth.js              # Auth module
-│   ├── style.css            # Shared styles
+│   ├── style.css            # Shared styles (1100+ lines)
+│   ├── sw.js                # Service worker (PWA)
 │   ├── manifest.json        # PWA manifest
-│   ├── sw.js                # Service worker
-│   └── js/
-│       └── calculators.js   # Deterministic finance calculators
-├── workflow-recipes/        # AgentFactory workflow definitions
+│   ├── icons/icon.svg       # PWA icon
+│   └── js/calculators.js    # Deterministic calculation formulas
+├── skills/                  # 19 Islamic finance AI skills
+│   ├── islamic-finance-router/
+│   ├── murabaha-specialist/
+│   ├── ijara-specialist/
+│   ├── zakat-advisor/
+│   └── ... (19 total)
+├── references/              # Product data, formulas, banks
+├── evals/                   # 44 routing + 15 product test cases
+├── workflow-recipes/        # Multi-step finance workflows
+├── hooks/                   # AgentFactory lifecycle hooks
+├── .github/workflows/       # CI/CD pipeline
 ├── CLAUDE.md                # AI system prompt + role definition
-├── ROADMAP.md               # Development roadmap
-├── schema.sql               # Database schema
-└── vercel.json              # Vercel deployment config
+├── schema.sql               # Database schema (13 tables)
+├── vercel.json              # Deployment config (29 routes)
+└── package.json             # Dependencies
 ```
 
 ---
@@ -110,9 +118,9 @@ vercel dev
 | Variable | Where to Get | Required? |
 |---|---|---|
 | `GEMINI_API_KEY` | [aistudio.google.com](https://aistudio.google.com) | Yes |
-| `DATABASE_URL` | [neon.tech](https://neon.tech) (connection string) | Yes (for auth) |
+| `DATABASE_URL` | [neon.tech](https://neon.tech) (connection string) | Yes |
 | `JWT_SECRET` | Run: `openssl rand -base64 48` | Yes |
-| `RESEND_API_KEY` | [resend.com](https://resend.com) | Yes (for OTP emails) |
+| `RESEND_API_KEY` | [resend.com](https://resend.com) | Yes |
 | `STRIPE_SECRET_KEY` | [dashboard.stripe.com](https://dashboard.stripe.com) | For payments |
 | `STRIPE_WEBHOOK_SECRET` | Stripe Dashboard → Developers → Webhooks | For payments |
 | `STRIPE_PRICE_PREMIUM` | Stripe Dashboard (price_* ID) | For payments |
@@ -121,85 +129,33 @@ vercel dev
 | `GOLD_API_KEY` | [goldapi.io](https://goldapi.io) (optional) | For live gold rates |
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 18+ (see `.nvmrc`)
 - Vercel CLI: `npm i -g vercel`
 - Neon account (free): [neon.tech](https://neon.tech)
 - Resend account (free): [resend.com](https://resend.com)
 - Google AI Studio key: [aistudio.google.com](https://aistudio.google.com)
 
-### 1. Clone & Install
+---
+
+## 🧪 Testing
 
 ```bash
-git clone https://github.com/AliRaza192/islamic-banking-fte.git
-cd islamic-banking-fte
-npm install
+# Run structure validation (no server needed)
+python3 evals/run-evals.py
+
+# Run routing validation
+python3 scripts/validate-routing.py
+
+# Run live API tests (requires server running)
+vercel dev  # Terminal 1
+python3 evals/run-evals.py --live  # Terminal 2
 ```
 
-### 2. Environment Variables
-
-Create `.env.local`:
-
-```env
-# AI
-GEMINI_API_KEY=AIzaSy-your-key-here
-GEMINI_MODEL=gemini-2.5-flash
-
-# Database
-DATABASE_URL=postgresql://neon-connection-string
-
-# Auth
-RESEND_API_KEY=re_your-key-here
-JWT_SECRET=your-random-64-char-string  # Generate: openssl rand -base64 48
-
-# Stripe Payments
-STRIPE_SECRET_KEY=sk_live_or_test_key
-STRIPE_WEBHOOK_SECRET=whsec_your-secret
-STRIPE_PRICE_PREMIUM=price_xxxxxx
-STRIPE_PRICE_PROFESSIONAL=price_xxxxxx
-
-# Admin Dashboard
-ADMIN_PASSWORD=your_strong_admin_password
-
-# Live Gold Rates (optional — https://goldapi.io free tier)
-GOLD_API_KEY=your_goldapi_key_here
-```
-
-### 3. Database Setup
-
-Run `schema.sql` in Neon SQL Editor:
-
-```bash
-psql $DATABASE_URL < schema.sql
-```
-
-### 4. Stripe Setup (Step-by-Step)
-
-1. **Stripe account banao** → https://dashboard.stripe.com/register
-2. **Two products banao** in Stripe Dashboard:
-   - Product 1: "Islamic Banking FTE Premium" → Price: $5/month recurring → Copy `price_xxxxx` ID
-   - Product 2: "Islamic Banking FTE Professional" → Price: $50/month recurring → Copy `price_xxxxx` ID
-3. **Vercel env vars mein paste karo:**
-   ```
-   STRIPE_PRICE_PREMIUM=price_xxxxx
-   STRIPE_PRICE_PROFESSIONAL=price_xxxxx
-   STRIPE_SECRET_KEY=sk_live_xxxxx
-   ```
-4. **Webhook configure karo** in Stripe Dashboard → Developers → Webhooks:
-   - URL: `https://islamic-banking-fte.vercel.app/api/payments/stripe-webhook`
-   - Events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`
-   - Copy Webhook Signing Secret → `STRIPE_WEBHOOK_SECRET=whsec_xxxxx`
-
-### 5. Admin Dashboard
-
-Access at: `https://your-domain.vercel.app/admin`  
-Password: value of `ADMIN_PASSWORD` env var
-
-### 6. Run Locally
-
-```bash
-vercel dev
-# Opens at http://localhost:3000
-```
+**Current Test Coverage:**
+- 44 routing test cases (100% pass rate)
+- 15 product explanation test cases
+- 10 negative/security test cases
+- 13 jurisdiction coverage tests
 
 ---
 
@@ -219,10 +175,10 @@ Add environment variables in Vercel Dashboard:
 This project follows [Panaversity AgentFactory](https://agentfactory.panaversity.org/) guidelines:
 
 - **CLAUDE.md** — Complete AI role definition, capabilities, constraints
-- **Skills** — 10 specialist Islamic finance skill modules
+- **Skills** — 19 specialist Islamic finance skill modules
 - **Commands** — Slash command definitions (`/calculate`, `/zakat`, `/check-halal`, `/compare`)
 - **Hooks** — Pre/post processing hooks
-- **Evals** — Test cases for AI response quality
+- **Evals** — 44+ test cases for AI response quality
 - **References** — Pakistan banks, products, AAOIFI standards
 - **Workflow Recipes** — Multi-step finance workflows
 
@@ -239,16 +195,37 @@ All calculations are **deterministic formula-based** — not LLM-generated:
 | Ijara | Depreciation + rental income |
 | Zakat | 2.5% on wealth above silver nisab |
 | Sukuk | Face value × periodic rate |
+| Halal Compliance | Keyword screening + risk assessment |
 
 ---
 
 ## 🏦 Covered Islamic Banks
 
-**Full Islamic:** Meezan Bank, Dubai Islamic Bank Pakistan, Bank Islami, Al Baraka Bank, MCB Islamic, Faysal Bank
+**Full Islamic (6):** Meezan Bank, Dubai Islamic Bank Pakistan, Bank Islami, Al Baraka Bank, MCB Islamic, Faysal Bank
 
-**Islamic Windows:** HBL Islamic, UBL Ameen, NBP Islamic, Habib Metro Islamic
+**Islamic Windows (4):** HBL Islamic, UBL Ameen, NBP Islamic, Habib Metropolitan Islamic
 
-**Microfinance:** NRSP Microfinance, Akhuwat (Qard Hasan), Kashf Foundation
+**Microfinance (3):** NRSP Microfinance, Akhuwat (Qard Hasan), Kashf Foundation
+
+---
+
+## 🌍 Jurisdiction Support
+
+| Jurisdiction | Regulator | Accounting Framework |
+|---|---|---|
+| Pakistan (Default) | SBP | IFRS (modified) |
+| UAE | CBUAE | IFRS |
+| Saudi Arabia | SAMA | IFRS (full) |
+| Malaysia | BNM | MFRS |
+| Bahrain | CBB | AAOIFI FAS (mandatory) |
+| Kuwait | CBK | IFRS |
+| Qatar | QCB/QFCRA | AAOIFI FAS (mandatory) |
+| Oman | CBO | IFRS + AAOIFI |
+| Turkey | BDDK | TFRS |
+| Nigeria | CBN | IFRS |
+| Indonesia | OJK | PSAK |
+| UK | PRA/FCA | UK-adopted IFRS |
+| GCC Cross-border | Multiple | Mixed |
 
 ---
 
@@ -265,9 +242,16 @@ Always consult your bank's Shariah Advisor for financial decisions.
 
 ## 📜 License
 
-MIT License — See [LICENSE](LICENSE)
+Apache License 2.0 — See [LICENSE](LICENSE)
 
 ---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Run tests: `python3 evals/run-evals.py`
+4. Submit a pull request
 
 *Developed following Panaversity AgentFactory methodology*
 *جزاک اللہ خیراً*

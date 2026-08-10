@@ -1,7 +1,7 @@
 // Islamic Banking FTE — Service Worker
 // Offline support + caching for faster loads
 
-const CACHE_NAME = 'ib-fte-v1';
+const CACHE_NAME = 'ib-fte-v2';
 
 // Static assets to cache
 const STATIC_ASSETS = [

@@ -29,7 +29,7 @@
         if (vData.user) {
           AUTH.setAuth(vData.token, vData.user);
         } else {
-          AUTH.setToken(vData.token);
+          AUTH.setAuth(vData.token, null);
         }
         AUTH.updateUI();
         banner.style.background = '#1a3a1a';

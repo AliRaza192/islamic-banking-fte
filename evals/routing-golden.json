@@ -250,5 +250,61 @@
     "expected_skill": "murabaha-specialist",
     "expected_jurisdiction": "pakistan",
     "category": "arabic-routing"
+  },
+  {
+    "id": "route-021",
+    "query": "Diminishing musharakah home finance explain karo",
+    "expected_skill": "musharakah-mudarabah-specialist",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-022",
+    "query": "Ghar ka financing kaise hota hai diminishing musharakah mein?",
+    "expected_skill": "musharakah-mudarabah-specialist",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-023",
+    "query": "Roshan Digital Account kaise khulein?",
+    "expected_skill": "islamic-banking-advisor",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-024",
+    "query": "Overseas Pakistani ke liye Naya Pakistan Certificate",
+    "expected_skill": "pakistan-banking-navigator",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-025",
+    "query": "What is takaful insurance and how does it work?",
+    "expected_skill": "sukuk-takaful-specialist",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-026",
+    "query": "Sukuk investment kaise karein?",
+    "expected_skill": "sukuk-investor",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-027",
+    "query": "Musharakah partnership business mein kaise kaam karta hai?",
+    "expected_skill": "musharakah-mudarabah-specialist",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
+  },
+  {
+    "id": "route-028",
+    "query": "Best Islamic bank for home finance in Pakistan?",
+    "expected_skill": "pakistan-banking-navigator",
+    "expected_jurisdiction": "pakistan",
+    "category": "product-routing"
   }
 ]

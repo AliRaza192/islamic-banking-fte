@@ -2,9 +2,12 @@
   "name": "islamic-banking-fte",
   "version": "1.0.0",
   "description": "> *\"In the name of Allah, the Most Gracious, the Most Merciful\"*",
-  "main": "index.js",
+  "main": "api/chat.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "vercel dev",
+    "evals": "python3 evals/run-evals.py",
+    "evals:live": "python3 evals/run-evals.py --live",
+    "validate": "python3 scripts/validate-routing.py"
   },
   "repository": {
     "type": "git",
@@ -12,7 +15,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "type": "module",
   "bugs": {
     "url": "https://github.com/AliRaza192/islamic-banking-fte/issues"

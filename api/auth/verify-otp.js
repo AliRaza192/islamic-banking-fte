@@ -108,7 +108,7 @@ export default async function handler(req, res) {
     const token = jwt.sign(
       { userId: user.id, email: user.email, tier: user.tier },
       JWT_SECRET,
-      { expiresIn: '1d' }
+      { expiresIn: '30d' }
     );
 
     // Set HttpOnly cookie — XSS-safe token storage
@@ -119,7 +119,7 @@ export default async function handler(req, res) {
       'HttpOnly',
       'Secure',
       `SameSite=${isProd ? 'Strict' : 'Lax'}`,
-      'Max-Age=86400',
+      'Max-Age=2592000',
     ].join('; ');
     res.setHeader('Set-Cookie', cookie);
 

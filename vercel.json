@@ -35,6 +35,7 @@
     { "source": "/calculators",           "destination": "/calculators.html" },
     { "source": "/banks",                 "destination": "/banks.html" },
     { "source": "/admin",                 "destination": "/admin.html" },
+    { "source": "/privacy",               "destination": "/privacy.html" },
 
     { "source": "/api/chat",              "destination": "/api/chat.js" },
     { "source": "/api/auth/send-otp",     "destination": "/api/auth/send-otp.js" },

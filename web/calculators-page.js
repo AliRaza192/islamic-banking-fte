@@ -289,12 +289,7 @@ function checkCompliance() {
 let _liveRatesLoaded = false;
 
 async function loadLiveRates() {
-  const badge    = document.getElementById('rates-badge');
   const updated  = document.getElementById('live-rates-updated');
-
-  if (badge) {
-    badge.innerHTML = '<span class="rates-loading">⏳ Loading live rates...</span>';
-  }
 
   try {
     const res   = await fetch('/api/rates', { signal: AbortSignal.timeout(8000) });
@@ -306,13 +301,12 @@ async function loadLiveRates() {
     _liveRatesLoaded  = true;
 
     // Format nicely
-    const goldFmt   = 'PKR ' + Math.round(rates.gold_pkr_per_tola).toLocaleString('en-PK');
-    const silverFmt = 'PKR ' + Math.round(rates.silver_pkr_per_tola).toLocaleString('en-PK');
-    const usdFmt    = 'PKR ' + parseFloat(rates.usd_pkr).toFixed(1);
-    const srcLabel  = rates.source === 'fallback' ? '📌 Fallback' :
-                      rates.cached ? '💾 Cached' : '🟢 Live';
-    const timeStr   = rates.updated
-      ? new Date(rates.updated).toLocaleString('en-PK', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' })
+    const goldFmt   = 'PKR ' + Math.round(rates.gold.pkrsPerTola).toLocaleString('en-PK');
+    const silverFmt = 'PKR ' + Math.round(rates.silver.pkrsPerTola).toLocaleString('en-PK');
+    const usdFmt    = 'PKR ' + parseFloat(rates.currency.usdPKR).toFixed(1);
+    const srcLabel  = '🟢 Live';
+    const timeStr   = rates.lastUpdated
+      ? new Date(rates.lastUpdated).toLocaleString('en-PK', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'short' })
       : 'Unknown';
 
     if (badge) {
@@ -341,10 +335,11 @@ async function loadLiveRates() {
     // Ensure calculators still work with fallback
     if (!window._liveRates) {
       window._liveRates = {
-        gold_pkr_per_tola:   330000,
-        silver_pkr_per_tola: 310,
-        nisab_silver_pkr:    16275,
-        nisab_gold_pkr:      2475000,
+        gold: { pkrsPerTola: 330000, pkrsPerGram: 28290 },
+        silver: { pkrsPerTola: 3100, pkrsPerGram: 100 },
+        nisab: { gold: 2475000, silver: 162750, lower: 162750 },
+        currency: { usdPKR: 280 },
+        lastUpdated: new Date().toISOString(),
         source: 'offline-fallback'
       };
     }

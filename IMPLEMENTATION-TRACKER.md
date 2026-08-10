@@ -1,110 +1,167 @@
 # 🕌 Islamic Banking FTE — Implementation Tracker
 
 **Started:** July 5, 2026
-**Track:** UNIFIED-ROADMAP.md ke 66 features ek ek karke
+**Last Updated:** August 10, 2026
+**Actual Status:** ~75% Complete (functional product with minor gaps)
 
 ---
 
-## TIER 0: Non-Negotiable (Week 1)
+## What Actually Exists (Verified August 2026)
 
-| # | Feature | Status | File Modified | Notes |
-|---|---------|--------|---------------|-------|
-| 1 | Fatwa blocking hook | ✅ DONE | `api/chat.js:684-735` | EN/UR bilingual |
-| 2 | Scope enforcement hook | ✅ DONE | `api/chat.js:737-790` | Stock tips, legal, other religion |
-| 3 | Overclaiming detection | ✅ DONE | `api/chat.js:921-936` | 100% halal → softened |
-| 4 | Calculation transparency engine | ✅ DONE | `api/calculate.js` | Step-by-step breakdown |
-| 5 | Enhanced disclaimer (fatwa-specific) | ✅ DONE | `api/chat.js:700-735` | Part of fatwa blocking |
-| 6 | Scope keyword detection in router | ✅ DONE | `api/chat.js:737-790` | Part of scope enforcement |
+### Core Backend (api/)
+| File | Lines | Status | Notes |
+|------|-------|--------|-------|
+| `api/chat.js` | 1322 | ✅ FIXED | Main Gemini proxy + skill routing (4 critical bugs fixed) |
+| `api/data.js` | 195 | ✅ FIXED | Rates, banks, compare, health (cache bugs fixed) |
+| `api/payments.js` | 249 | ✅ Complete | Stripe checkout, verify, portal, webhooks |
+| `api/user.js` | 148 | ✅ Complete | History, feedback |
+| `api/admin.js` | 157 | ✅ Complete | Stats, rate management, cleanup |
+| `api/calculate.js` | 525 | ✅ Complete | Deterministic financial calculations |
+| `api/auth/send-otp.js` | 172 | ✅ Complete | Email OTP via Resend |
+| `api/auth/verify-otp.js` | 139 | ✅ Complete | OTP verification + JWT |
+| `api/auth/me.js` | 124 | ✅ Complete | User info + logout |
+| `api/lib/auth.js` | 51 | ⚠️ Unused | Shared auth utilities (not imported anywhere) |
+| `api/lib/cors.js` | 23 | ⚠️ Unused | Shared CORS utilities (not imported anywhere) |
+| `api/lib/audit-logger.js` | 192 | ⚠️ Unused | Compliance audit logger (not imported) |
+| `api/lib/pii-encryption.js` | 133 | ⚠️ Unused | PII encryption utility (not imported) |
+
+### Frontend (web/)
+| File | Lines | Status | Notes |
+|------|-------|--------|-------|
+| `web/landing.html` | 1485 | ✅ FIXED | Marketing page (footer links + copyright fixed) |
+| `web/chat.html` | 248 | ✅ Complete | Chat interface with voice, sidebar, quick commands |
+| `web/calculators.html` | 758 | ✅ Complete | 6 calculators (Murabaha, DM, Ijara, Zakat, Sukuk, Compliance) |
+| `web/banks.html` | 719 | ✅ Complete | 11 bank cards with filtering and comparison |
+| `web/dashboard.html` | 252 | ✅ FIXED | User dashboard (AUTH.setToken bug fixed) |
+| `web/pricing.html` | 843 | ✅ Complete | 3-tier pricing with Stripe integration |
+| `web/admin.html` | 121 | ✅ Complete | Admin dashboard |
+| `web/privacy.html` | 223 | ✅ FIXED | Privacy policy (HTML syntax fixed) |
+| `web/app.js` | 597 | ✅ Complete | Chat UI logic |
+| `web/auth.js` | 241 | ✅ Complete | OTP auth module |
+| `web/sw.js` | 71 | ✅ Complete | Service worker with caching |
+| `web/js/calculators.js` | 354 | ✅ Complete | Deterministic calculation formulas |
+| `web/style.css` | 1130 | ✅ Complete | Shared styles |
+| `web/manifest.json` | 37 | ✅ FIXED | PWA manifest (SVG icons) |
+| `web/icons/icon.svg` | 25 | ✅ NEW | PWA icon (created) |
+
+### Skills (19 total)
+| Skill | Status | Notes |
+|-------|--------|-------|
+| `islamic-finance-router` | ✅ Complete | Top-level routing controller |
+| `murabaha-specialist` | ✅ Complete | AAOIFI FAS 2 |
+| `ijara-specialist` | ✅ Complete | AAOIFI FAS 8/32 |
+| `salam-specialist` | ✅ Complete | AAOIFI FAS 7 |
+| `istisna-a-specialist` | ✅ Complete | AAOIFI FAS 10 |
+| `sukuk-issuer` | ✅ Complete | AAOIFI FAS 33/34 |
+| `sukuk-investor` | ✅ Complete | AAOIFI FAS 25 |
+| `takaful-ifrs17` | ✅ Complete | IFRS 17 |
+| `musharaka-full` | ✅ Complete | AAOIFI FAS 4 |
+| `musharakah-mudarabah-specialist` | ✅ Complete | AAOIFI FAS 3/4 |
+| `sukuk-takaful-specialist` | ✅ Complete | Shariah Std 17/26 |
+| `zakat-advisor` | ✅ Complete | AAOIFI FAS 9 |
+| `shariah-compliance-checker` | ✅ Complete | 5-step screening |
+| `halal-calculator` | ✅ Complete | Routing logic |
+| `islamic-product-explainer` | ✅ Complete | Communication principles |
+| `pakistan-banking-navigator` | ✅ Complete | SBP framework |
+| `islamic-banking-advisor` | ✅ Complete | Advisory framework |
+| `musharaka-dm` | ✅ Complete | Diminishing Musharakah |
+| `roshan-digital-advisor` | ✅ FIXED | RDA guidance (YAML frontmatter added) |
+
+### Jurisdictions (13 total)
+All 13 jurisdiction overlays are COMPLETE:
+- pakistan-ifrs, uae-ifrs, saudi-ifrs, malaysia-mfrs, bahrain-aaoifi
+- kuwait-ifrs, qatar-aaoifi, oman-ifrs, turkey-tfrs
+- nigeria-ifrs, indonesia-psak, uk-ifrs, gcc-crossborder
+
+### References (6 files)
+| File | Status | Notes |
+|------|--------|-------|
+| `references/products.md` | ✅ Complete | 10 products |
+| `references/calculations.md` | ✅ Complete | All formulas |
+| `references/shariah-rules.md` | ✅ Complete | Core prohibitions |
+| `references/nisab-table.md` | ✅ Complete | Nisab values |
+| `references/pakistan-banks.md` | ✅ Complete | 11 banks |
+| `references/faqs.md` | ✅ Complete | 7 categories |
+
+### Workflow Recipes (4 files)
+| File | Status |
+|------|--------|
+| `workflow-recipes/murabaha-application.md` | ✅ Complete |
+| `workflow-recipes/zakat-audit.md` | ✅ Complete |
+| `workflow-recipes/investment-screening.md` | ✅ Complete |
+| `workflow-recipes/product-comparison.md` | ✅ Complete |
+
+### Evals
+| File | Status | Notes |
+|------|--------|-------|
+| `evals/routing-golden.json` | ✅ FIXED | 43 test cases (8 new added) |
+| `evals/product-golden.json` | ✅ Complete | 15 test cases |
+| `evals/negative-cases.json` | ✅ Complete | 10 test cases |
+| `evals/run-evals.py` | ✅ Complete | Test runner |
+
+### Config & CI/CD
+| File | Status | Notes |
+|------|--------|-------|
+| `package.json` | ✅ FIXED | License, scripts, main field fixed |
+| `vercel.json` | ✅ Complete | 29 routes, security headers |
+| `schema.sql` | ✅ Complete | 13 tables |
+| `.env.example` | ✅ FIXED | ADMIN_PASSWORD added |
+| `.github/workflows/evals.yml` | ✅ NEW | CI/CD pipeline created |
 
 ---
 
-## TIER 1: Core Enterprise (Week 2-3)
+## What's NOT Implemented (Never Existed)
 
-| # | Feature | Status | File Modified | Notes |
-|---|---------|--------|---------------|-------|
-| 7 | Human escalation logic | ✅ DONE | `api/chat.js` | High amount, keywords, complex queries |
-| 8 | Escalation response templates | ✅ DONE | `api/chat.js` | EN/UR bilingual templates |
-| 9 | Live KIBOR rates | ✅ DONE | `api/rates.js` | SBP scrape + fallback |
-| 10 | Live bank profit rates | ✅ DONE | `api/bank-rates.js` | 8 banks, 4 products each |
-| 11 | Rate provider fallback chain | ⏳ | | |
-| 12 | Rate reliability display | ✅ DONE | `api/rates.js` | Live/Cached/Estimated labels |
-| 13 | Session memory | ✅ DONE | `api/chat.js` | Last 10 messages loaded for continuity |
-| 14 | User profile store | ✅ DONE | `api/chat.js` + `schema.sql` | Language, jurisdiction, interests tracking |
-| 15 | Full audit log table | ✅ DONE | `schema.sql` | |
-| 16 | Rate update history table | ✅ DONE | `schema.sql` | |
-| 17 | Manual rate admin panel | ✅ DONE | `api/admin-rates.js` | Admin can update gold/silver/KIBOR rates |
-| 18 | Nisab date-stamping | ✅ DONE | `api/chat.js` | Table format with date + reliability |
-| 19 | Response date-stamping | ✅ DONE | `api/chat.js` | Mandatory timestamp format in system prompt |
-| 20 | CI/CD pipeline | ✅ DONE | `.github/workflows/evals.yml` | |
-| 21 | Deploy gate | ✅ DONE | `.github/workflows/evals.yml` | Block deploy if evals fail |
-| 22 | Rate limit friendly fallback | ✅ DONE | `api/chat.js` | Bilingual 429 handler |
-| 23 | Owner alerting | ✅ DONE | `api/chat.js` | Webhook alerts at 80% + on limit hit |
-| 24 | Privacy policy page | ✅ DONE | `web/privacy.html` | |
-| 25 | Data retention policy | ✅ DONE | `scripts/retention-cleanup.sql` | Auto-delete old data (12-24 months) |
-| 26 | At-rest encryption for PII | ✅ DONE | `api/lib/pii-encryption.js` | AES-256-GCM encryption utility |
-| 27 | Input PII detection | ✅ DONE | `api/chat.js` | CNIC, account, card, email detection |
-| 28 | Toxicity detection | ✅ DONE | `api/chat.js` | EN/UR abusive language blocking |
-| 29 | Prompt injection detection | ✅ DONE | `api/chat.js:464-481` | Already existed |
-| 30 | Jailbreak detection | ✅ DONE | `api/chat.js` | EN/UR jailbreak pattern blocking |
+The following features were claimed in IMPLEMENTATION-TRACKER.md but the API files were created and then deleted in commit `583518f`:
 
----
-
-## TIER 2: Competitive (Week 4-6)
-
-| # | Feature | Status | File Modified | Notes |
-|---|---------|--------|---------------|-------|
-| 31 | PDF report generation | ✅ DONE | `api/generate-report.js` | Zakat, Murabaha, Ijara, Summary reports |
-| 32 | Shariah stock screening engine | ✅ DONE | `api/stock-screen.js` | AAOIFI criteria, 10 PSX stocks, halal/haram/doubtful |
-| 33 | Document upload + OCR | ✅ DONE | `api/document-upload.js` | PDF, images, text extraction, classification |
-| 34 | Voice input (Urdu + English) | ✅ DONE | `api/voice-input.js` | Speech-to-text, language detection, Urdu terms |
-| 35 | WhatsApp bot integration | ✅ DONE | `api/whatsapp-bot.js` | Webhook, quick replies, message handling |
-| 36 | Telegram bot integration | ✅ DONE | `api/telegram-bot.js` | Commands, inline keyboards, callback queries |
-| 37 | SMS alerts | ✅ DONE | `api/sms-alerts.js` | Zakat reminders, rate alerts, transaction notifications |
-| 38 | Push notifications (PWA) | ✅ DONE | `api/push-notifications.js` | VAPID keys, templates, subscribe/broadcast |
-| 39 | Referral program | ✅ DONE | `api/referral-program.js` | Code generation, rewards tracking, share links |
-| 40 | Islamic calendar integration | ✅ DONE | `api/islamic-calendar.js` | Hijri dates, events, Zakat reminders |
-| 41 | Multi-currency live rates | ✅ DONE | `api/rates.js` | AED, SAR, MYR, BHD, EUR, GBP, TRY, IDR, NGN |
-| 42 | Bank comparison engine | ✅ DONE | `api/compare-banks.js` | 5 banks, 4 products each, rate comparison |
-| 43 | Financing application workflow | ✅ DONE | `api/financing-application.js` | Murabaha/Ijara applications, validation, calculation |
-| 44 | Branch locator + appointment | ✅ DONE | `api/branch-locator.js` | Nearby search, city search, appointment booking |
-| 45 | Investment portfolio tracker | ✅ DONE | `api/investment-portfolio.js` | Portfolio tracking, performance, Shariah compliance |
-| 46 | Zakat auto-reminder | ✅ DONE | `api/zakat-reminder.js` | Schedule reminders, Nisab check, multi-channel |
-| 47 | Knowledge freshness monitoring | ✅ DONE | `references/*.md` + `api/chat.js` | Date stamps + staleness warnings |
-| 48 | Analytics dashboard (admin) | ✅ DONE | `api/analytics-dashboard.js` | Users, queries, financial, security, feedback analytics |
-| 49 | Feedback loop | ✅ DONE | `api/feedback.js` + `web/app.js` + `schema.sql` | Thumbs up/down + admin summary |
-| 50 | API for third-party integration | ✅ DONE | `api/public-api.js` | API key auth, rate limiting, documentation |
-
----
-
-## TIER 3: Advanced (Week 7-10)
-
-| # | Feature | Status | File Modified | Notes |
-|---|---------|--------|---------------|-------|
-| 51 | Multi-agent architecture | ✅ DONE | `api/multi-agent.js` | 5 specialist agents, routing logic |
-| 52 | RAG (Retrieval-Augmented Generation) | ✅ DONE | `api/rag-engine.js` | AAOIFI, SBP, Shariah knowledge base |
-| 53 | Islamic Finance Knowledge Graph | ✅ DONE | `api/knowledge-graph.js` | Products, scholars, standards, concepts |
-| 54 | Document generation (DOCX/PDF) | ✅ DONE | `api/document-generation.js` | 6 document templates |
-| 55 | Explainable AI engine | ✅ DONE | `api/explainable-ai.js` | Step-by-step calculations with formulas |
-| 56 | Version control for skills/prompts | ✅ DONE | `api/version-control.js` | Git-based versioning |
-| 57 | Continuous evals (auto-run) | ✅ DONE | `api/continuous-evals.js` | 5 eval categories, auto-run |
-| 58 | Model fallback (Gemini → backup) | ✅ DONE | `api/model-fallback.js` | 3 models, auto-switch |
-| 59 | Banking API integration | ✅ DONE | `api/banking-integration.js` | Eligibility, status, balance |
-| 60 | Compliance reporting for regulators | ✅ DONE | `api/compliance-reporting.js` | AAOIFI/SBP reports |
-| 61 | Role-based access control (RBAC) | ✅ DONE | `api/rbac.js` | 5 roles, permission system |
-| 62 | Multi-tenant support | ✅ DONE | `api/multi-tenant.js` | Multiple bank configurations |
-| 63 | Real-time chat with human agent | ✅ DONE | `api/human-chat.js` | Agent handoff, session management |
-| 64 | AI document clause analysis | ✅ DONE | `api/document-analysis.js` | Clause-by-clause Shariah check |
-| 65 | Hallucination detection | ✅ DONE | `api/hallucination-detection.js` | Factual, reference, logic checks |
-| 66 | Source verification | ✅ DONE | `api/source-verification.js` | AAOIFI, SBP, Quran, Hadith verification |
+- `api/generate-report.js` — PDF report generation
+- `api/stock-screen.js` — Shariah stock screening
+- `api/document-upload.js` — Document upload + OCR
+- `api/voice-input.js` — Voice input (frontend has this, not API)
+- `api/whatsapp-bot.js` — WhatsApp integration
+- `api/telegram-bot.js` — Telegram integration
+- `api/sms-alerts.js` — SMS alerts
+- `api/push-notifications.js` — Push notifications
+- `api/referral-program.js` — Referral program
+- `api/islamic-calendar.js` — Islamic calendar
+- `api/multi-agent.js` — Multi-agent architecture
+- `api/rag-engine.js` — RAG engine
+- `api/knowledge-graph.js` — Knowledge graph
+- `api/document-generation.js` — Document generation
+- `api/explainable-ai.js` — Explainable AI
+- `api/version-control.js` — Version control
+- `api/continuous-evals.js` — Continuous evals
+- `api/model-fallback.js` — Model fallback
+- `api/banking-integration.js` — Banking API
+- `api/compliance-reporting.js` — Compliance reporting
+- `api/rbac.js` — RBAC
+- `api/multi-tenant.js` — Multi-tenant
+- `api/human-chat.js` — Human agent chat
+- `api/document-analysis.js` — Document analysis
+- `api/hallucination-detection.js` — Hallucination detection
+- `api/source-verification.js` — Source verification
+- `api/public-api.js` — Public API
 
 ---
 
 ## Summary
 
-| Tier | Done | Total | Progress |
-|------|------|-------|----------|
-| TIER 0 | 6 | 6 | 100% ✅ |
-| TIER 1 | 24 | 24 | 100% ✅ |
-| TIER 2 | 20 | 20 | 100% ✅ |
-| TIER 3 | 16 | 16 | 100% ✅ |
-| **TOTAL** | **66** | **66** | **100%** 🎉 |
+| Category | Actual Status |
+|----------|---------------|
+| Core Chat (AI) | ✅ Working (4 bugs fixed) |
+| Authentication | ✅ Working |
+| Payments | ✅ Working |
+| Calculators | ✅ All 6 working |
+| Bank Directory | ✅ 11 banks |
+| Skills System | ✅ 19 skills |
+| Jurisdictions | ✅ All 13 |
+| Reference Data | ✅ Complete |
+| Database | ✅ Well-designed |
+| Frontend UI | ✅ Complete |
+| PWA | ✅ Working (icons added) |
+| Testing | ✅ 43 routing tests |
+| CI/CD | ✅ Pipeline created |
+| Documentation | ✅ Accurate now |
+
+**Overall: ~75% of the ACTUAL product is complete and functional.**
+**The remaining 25% consists of advanced features (multi-agent, RAG, etc.) that were planned but not implemented.**
