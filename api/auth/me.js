@@ -1,12 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-
-const ALLOWED_ORIGINS = [
-  'https://islamic-banking-fte.vercel.app',
-  'http://localhost:8000',
-  'http://localhost:3000',
-];
+import { setCors } from '../lib/cors.js';
 
 const TIER_LIMITS = {
   anonymous: 5,
@@ -14,16 +9,6 @@ const TIER_LIMITS = {
   premium: 100,
   professional: Infinity,
 };
-
-function setCors(req, res) {
-  const origin = req.headers.origin;
-  if (ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-}
 
 function parseCookies(cookieHeader) {
   const cookies = {};
@@ -112,7 +97,7 @@ async function handleMe(req, res) {
 }
 
 export default async function handler(req, res) {
-  setCors(req, res);
+  setCors(req, res, 'GET, POST, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const url = new URL(req.url, `https://${req.headers.host}`);

@@ -14,8 +14,8 @@ export function calculateZakatTransparent(totalAssets, nisab = {}) {
   const sources = [];
   const rate = 0.025;
 
-  const goldNisab = nisab.gold_pkr || 1870000;
-  const silverNisab = nisab.silver_pkr || 171360;
+  const goldNisab = nisab.gold_pkr || 1837500;   // 245,000/tola × 7.5 tola
+  const silverNisab = nisab.silver_pkr || 141750; // 2,700/tola × 52.5 tola
   const nisabDate = nisab.date || new Date().toISOString().split("T")[0];
 
   // Step 1: Asset Classification
@@ -476,9 +476,9 @@ export function buildCalculationBlock(userMessage, liveNisab) {
     if (match) {
       const amount = parseFloat(match[1]) * 100000;
       const nisab = {
-        gold_pkr: liveNisab?.nisab_gold_pkr || 1870000,
-        silver_pkr: liveNisab?.nisab_silver_pkr || 171360,
-        date: liveNisab?.updated || new Date().toISOString().split("T")[0],
+        gold_pkr: liveNisab?.nisab?.gold || 1837500,
+        silver_pkr: liveNisab?.nisab?.silver || 141750,
+        date: liveNisab?.lastUpdated || new Date().toISOString().split("T")[0],
       };
       const result = calculateZakatTransparent(amount, nisab);
       block += `\n\n---\n\n## PRE-COMPUTED ZAKAT RESULT (USE THIS EXACT NUMBER)\n`;
@@ -493,9 +493,9 @@ export function buildCalculationBlock(userMessage, liveNisab) {
     if (match) {
       const amount = parseInt(match[1].replace(/,/g, ""));
       const nisab = {
-        gold_pkr: liveNisab?.nisab_gold_pkr || 1870000,
-        silver_pkr: liveNisab?.nisab_silver_pkr || 171360,
-        date: liveNisab?.updated || new Date().toISOString().split("T")[0],
+        gold_pkr: liveNisab?.nisab?.gold || 1837500,
+        silver_pkr: liveNisab?.nisab?.silver || 141750,
+        date: liveNisab?.lastUpdated || new Date().toISOString().split("T")[0],
       };
       const result = calculateZakatTransparent(amount, nisab);
       block += `\n\n---\n\n## PRE-COMPUTED ZAKAT RESULT (USE THIS EXACT NUMBER)\n`;

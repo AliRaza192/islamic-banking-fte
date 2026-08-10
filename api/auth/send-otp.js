@@ -1,51 +1,10 @@
 import { neon } from "@neondatabase/serverless";
 import crypto from "crypto";
-
-// ---- IP-based rate limiting (in-memory) ----
-// Max 10 OTP requests per IP per hour
-const ipRateLimits = globalThis.__otpIpLimits || (globalThis.__otpIpLimits = new Map());
-const IP_LIMIT = 10;
-const IP_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-
-function checkIpRateLimit(ip) {
-  const now = Date.now();
-  const record = ipRateLimits.get(ip);
-  if (!record || now - record.start > IP_WINDOW_MS) {
-    ipRateLimits.set(ip, { start: now, count: 1 });
-    return { allowed: true, remaining: IP_LIMIT - 1 };
-  }
-  if (record.count >= IP_LIMIT) {
-    return { allowed: false, remaining: 0 };
-  }
-  record.count++;
-  return { allowed: true, remaining: IP_LIMIT - record.count };
-}
-
-// Cleanup old entries every 10 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, record] of ipRateLimits) {
-    if (now - record.start > IP_WINDOW_MS) ipRateLimits.delete(ip);
-  }
-}, 10 * 60 * 1000);
-
-const ALLOWED_ORIGINS = [
-  "https://islamic-banking-fte.vercel.app",
-  "http://localhost:8000",
-  "http://localhost:3000",
-];
-
-function setCors(req, res) {
-  const origin = req.headers.origin;
-  if (ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-}
+import { setCors } from "../lib/cors.js";
 
 function getClientIP(req) {
+  const vercelForwarded = req.headers["x-vercel-forwarded-for"];
+  if (vercelForwarded) return vercelForwarded.split(",")[0].trim();
   const forwarded = req.headers["x-forwarded-for"];
   if (forwarded) return forwarded.split(",")[0].trim();
   return req.socket?.remoteAddress || "unknown";
@@ -55,8 +14,12 @@ function generateOTP() {
   return crypto.randomInt(100000, 1000000).toString();
 }
 
+function hashOTP(email, code) {
+  return crypto.createHash('sha256').update(`${email}:${code}`).digest('hex');
+}
+
 export default async function handler(req, res) {
-  setCors(req, res);
+  setCors(req, res, "POST, OPTIONS");
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST")
     return res.status(405).json({ error: "Method not allowed" });
@@ -82,10 +45,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    // IP-based rate limit check
+    // IP-based rate limit check (DB-backed, 10 per hour)
     const clientIP = getClientIP(req);
-    const ipLimit = checkIpRateLimit(clientIP);
-    if (!ipLimit.allowed) {
+    const ipLimit = await sql`
+      SELECT req_count FROM rate_limits
+      WHERE ip = ${clientIP} AND req_date = CURRENT_DATE
+    `;
+    const ipCount = ipLimit[0]?.req_count ?? 0;
+    if (ipCount >= 10) {
       return res.status(429).json({ error: "Too many requests. Please try again later." });
     }
 
@@ -111,13 +78,14 @@ export default async function handler(req, res) {
         .json({ error: "Too many OTP requests. Wait 10 minutes before trying again." });
     }
 
-    // Generate and store OTP
+    // Generate and store OTP (hashed)
     const code = generateOTP();
+    const hashedCode = hashOTP(normalizedEmail, code);
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
     await sql`
       INSERT INTO otps (email, code, expires_at)
-      VALUES (${normalizedEmail}, ${code}, ${expiresAt.toISOString()})
+      VALUES (${normalizedEmail}, ${hashedCode}, ${expiresAt.toISOString()})
     `;
 
     // Send OTP via Resend
@@ -161,6 +129,14 @@ export default async function handler(req, res) {
       }
       return res.status(500).json({ error: "Failed to send verification email. Please try again later." });
     }
+
+    // Increment IP rate limit after successful send
+    await sql`
+      INSERT INTO rate_limits (ip, req_date, req_count)
+      VALUES (${clientIP}, CURRENT_DATE, 1)
+      ON CONFLICT (ip, req_date)
+      DO UPDATE SET req_count = rate_limits.req_count + 1
+    `;
 
     return res
       .status(200)

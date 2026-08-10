@@ -1,22 +1,7 @@
 // api/data.js
 // Merged data endpoint — rates, bank-rates, compare-banks, health
 import { neon } from '@neondatabase/serverless';
-
-const ALLOWED_ORIGINS = [
-  'https://islamic-banking-fte.vercel.app',
-  'http://localhost:8000',
-  'http://localhost:3000',
-];
-
-function setCors(req, res) {
-  const origin = req.headers.origin;
-  if (ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-}
+import { setCors } from './lib/cors.js';
 
 // ---- Rates Cache ----
 const ratesCache = { data: null, ts: 0 };

@@ -64,8 +64,8 @@
       <p class="last-updated">Last Updated: July 5, 2026</p>
 
       <div class="lang-toggle">
-        <button class="lang-btn active" onclick="showLang('en')">English</button>
-        <button class="lang-btn" onclick="showLang('ur')">اردو / Roman Urdu</button>
+        <button class="lang-btn active">English</button>
+        <button class="lang-btn">اردو / Roman Urdu</button>
       </div>
 
       <!-- ENGLISH -->
@@ -201,24 +201,6 @@
     </div>
   </div>
 
-  <script>
-    function showLang(lang) {
-      const enContent = document.getElementById('en-content');
-      const urContent = document.getElementById('ur-content');
-      const buttons = document.querySelectorAll('.lang-btn');
-
-      buttons.forEach(btn => btn.classList.remove('active'));
-
-      if (lang === 'ur') {
-        enContent.classList.add('hidden');
-        urContent.classList.add('active');
-        buttons[1].classList.add('active');
-      } else {
-        enContent.classList.remove('hidden');
-        urContent.classList.remove('active');
-        buttons[0].classList.add('active');
-      }
-    }
-  </script>
+  <script src="privacy.js"></script>
 </body>
 </html>

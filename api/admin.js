@@ -2,23 +2,7 @@
 // Merged admin endpoint — stats, rate management, cleanup
 import { neon } from '@neondatabase/serverless';
 import crypto from 'crypto';
-
-const ALLOWED_ORIGINS = [
-  'https://islamic-banking-fte.vercel.app',
-  'http://localhost:8000',
-  'http://localhost:3000',
-];
-
-function setCors(req, res) {
-  const origin = req.headers.origin;
-  if (ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Cache-Control', 'no-store');
-}
+import { setCors } from './lib/cors.js';
 
 function verifyAdmin(req) {
   const { ADMIN_PASSWORD } = process.env;
@@ -132,7 +116,8 @@ async function handleCleanup(req, res) {
 
 // ---- Router ----
 export default async function handler(req, res) {
-  setCors(req, res);
+  setCors(req, res, 'GET, POST, OPTIONS');
+  res.setHeader('Cache-Control', 'no-store');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const clientIP = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
@@ -152,6 +137,6 @@ export default async function handler(req, res) {
 
   if (action === 'rates') return handleRates(req, res);
   if (action === 'cleanup') return handleCleanup(req, res);
-  if (req.method === 'POST') return handleCleanup(req, res);
-  return handleStats(req, res);
+  if (action === '' || action === null) return handleStats(req, res);
+  return res.status(400).json({ error: 'Unknown action' });
 }

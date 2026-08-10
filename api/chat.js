@@ -3,15 +3,25 @@ import jwt from "jsonwebtoken";
 import { readFileSync, existsSync } from "fs";
 import { join } from "path";
 import { buildCalculationBlock } from "./calculate.js";
+import { sanitizeForLog } from "./lib/pii-encryption.js";
+import { setCors } from "./lib/cors.js";
 
-// ---- Load files from disk (server-side only) ----
+// ---- Load files from disk (server-side only, with caching) ----
+const _fileCache = new Map();
 function loadFile(relativePath) {
+  if (_fileCache.has(relativePath)) return _fileCache.get(relativePath);
   try {
     const fullPath = join(process.cwd(), relativePath);
-    if (existsSync(fullPath)) return readFileSync(fullPath, "utf-8");
+    if (existsSync(fullPath)) {
+      const content = readFileSync(fullPath, "utf-8");
+      _fileCache.set(relativePath, content);
+      return content;
+    }
+    _fileCache.set(relativePath, "");
     return "";
   } catch (err) {
     console.error(`File load error: ${relativePath}`, err.message);
+    _fileCache.set(relativePath, "");
     return "";
   }
 }
@@ -481,7 +491,6 @@ function validateInput(body) {
       const toxicityPatterns = [
         /\b(bakwas|bkl|mc|bc|gandi|gali|chutyapa|chutia|harami|kamine|randi|saala|behenchod|madarchod)\b/i,
         /\b(fuck|shit|damn|ass|bitch|crap|dick)\b/i,
-        /\b(idiot|stupid|moron|dumb|loser)\b/i,
         /[\u0600-\u06FF]\s*(گالی|گندی|بکواس|ہرامی|کمینہ|سالا)\b/i,
       ];
       if (toxicityPatterns.some((p) => p.test(part.text)))
@@ -575,31 +584,40 @@ function verifyToken(authHeader, cookieHeader) {
   }
 }
 
-// ---- Rate Limiting (tiered) ----
-// CHECK first (no increment), then INCREMENT after successful response
-async function checkRateLimit(sql, ip, user) {
+// ---- Rate Limiting (tiered, atomic) ----
+// Atomically increment and check — eliminates TOCTOU race condition
+async function checkAndIncrementRateLimit(sql, ip, user) {
   const tier = user?.tier || "anonymous";
   const limit = TIER_LIMITS[tier];
 
   if (limit === Infinity)
-    return { allowed: true, remaining: "unlimited", tier };
+    return { allowed: true, remaining: "unlimited", tier, count: 0 };
 
   // Authenticated user: track by user_id in users table
   if (user && sql) {
     try {
       const today = new Date().toISOString().split("T")[0];
-      // Reset counter if date changed
+      // Reset counter if date changed, then atomically increment
       await sql`
         UPDATE users SET queries_today = 0, queries_date = ${today}
         WHERE id = ${user.userId} AND queries_date < ${today}::date
       `;
-      // READ current count (no increment yet)
       const rows = await sql`
-        SELECT queries_today FROM users WHERE id = ${user.userId}
+        UPDATE users SET queries_today = queries_today + 1
+        WHERE id = ${user.userId}
+        RETURNING queries_today
       `;
       const count = rows[0]?.queries_today ?? 0;
+      if (count > limit) {
+        // Rollback: decrement
+        await sql`
+          UPDATE users SET queries_today = queries_today - 1
+          WHERE id = ${user.userId}
+        `;
+        return { allowed: false, remaining: 0, tier, count: count - 1 };
+      }
       const remaining = Math.max(0, limit - count);
-      return { allowed: count < limit, remaining, tier, count };
+      return { allowed: true, remaining, tier, count };
     } catch (err) {
       console.error("User rate limit error:", err.message);
       return { allowed: true, remaining: limit, tier, count: 0 };
@@ -607,55 +625,57 @@ async function checkRateLimit(sql, ip, user) {
   }
 
   // Anonymous: track by IP
-  if (!sql) return { allowed: true, remaining: 5, tier };
+  if (!sql) return { allowed: true, remaining: 5, tier, count: 0 };
   try {
-    // READ current count first (no increment)
+    // Atomic insert-or-increment
     const rows = await sql`
-      SELECT req_count FROM rate_limits
-      WHERE ip = ${ip} AND req_date = CURRENT_DATE
-    `;
-    const count = rows[0]?.req_count ?? 0;
-    const remaining = Math.max(0, limit - count);
-
-    if (count >= limit) {
-      return { allowed: false, remaining: 0, tier, count };
-    }
-
-    return { allowed: true, remaining, tier, count };
-    } catch (err) {
-      console.error("Rate limit check error:", err.message);
-      return { allowed: true, remaining: 5, tier };
-    }
-}
-
-// ---- Increment Rate Limit (called AFTER successful response) ----
-async function incrementRateLimit(sql, ip, user) {
-  try {
-    if (!sql) return;
-
-    // Authenticated user
-    if (user && user.userId) {
-      await sql`
-        UPDATE users SET queries_today = queries_today + 1
-        WHERE id = ${user.userId}
-      `;
-      return;
-    }
-
-    // Anonymous: track by IP
-    await sql`
       INSERT INTO rate_limits (ip, req_date, req_count)
       VALUES (${ip}, CURRENT_DATE, 1)
       ON CONFLICT (ip, req_date)
       DO UPDATE SET req_count = rate_limits.req_count + 1
+      RETURNING req_count
+    `;
+    const count = rows[0]?.req_count ?? 1;
+    if (count > limit) {
+      // Rollback: decrement
+      await sql`
+        UPDATE rate_limits SET req_count = req_count - 1
+        WHERE ip = ${ip} AND req_date = CURRENT_DATE
+      `;
+      return { allowed: false, remaining: 0, tier, count: count - 1 };
+    }
+    const remaining = Math.max(0, limit - count);
+    return { allowed: true, remaining, tier, count };
+  } catch (err) {
+    console.error("Rate limit error:", err.message);
+    return { allowed: true, remaining: 5, tier, count: 0 };
+  }
+}
+
+// ---- Decrement Rate Limit (rollback on Gemini failure) ----
+async function decrementRateLimit(sql, ip, user) {
+  try {
+    if (!sql) return;
+    if (user && user.userId) {
+      await sql`
+        UPDATE users SET queries_today = queries_today - 1
+        WHERE id = ${user.userId} AND queries_today > 0
+      `;
+      return;
+    }
+    await sql`
+      UPDATE rate_limits SET req_count = req_count - 1
+      WHERE ip = ${ip} AND req_date = CURRENT_DATE AND req_count > 0
     `;
   } catch (err) {
-    console.error("Rate limit increment error:", err.message);
+    console.error("Rate limit decrement error:", err.message);
   }
 }
 
 // ---- Get Client IP ----
 function getClientIP(req) {
+  const vercelForwarded = req.headers["x-vercel-forwarded-for"];
+  if (vercelForwarded) return vercelForwarded.split(",")[0].trim();
   const forwarded = req.headers["x-forwarded-for"];
   if (forwarded) return forwarded.split(",")[0].trim();
   return req.socket?.remoteAddress || "unknown";
@@ -663,24 +683,11 @@ function getClientIP(req) {
 
 // ---- Main Handler ----
 export default async function handler(req, res) {
-  const origin = req.headers.origin;
-  const ALLOWED_ORIGINS = [
-    "https://islamic-banking-fte.vercel.app",
-    "http://localhost:8000",
-    "http://localhost:3000",
-  ];
-
-  // Set CORS headers — only allowlisted origins
-  if (origin && ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  setCors(req, res, "POST, OPTIONS");
   res.setHeader(
     "Access-Control-Expose-Headers",
     "X-RateLimit-Remaining, X-RateLimit-Tier, X-RateLimit-Limit",
   );
-  res.setHeader("Access-Control-Allow-Credentials", "true");
 
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST")
@@ -719,7 +726,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const { allowed, remaining, tier, count } = await checkRateLimit(
+    const { allowed, remaining, tier, count } = await checkAndIncrementRateLimit(
       sql,
       clientIP,
       user,
@@ -1010,7 +1017,7 @@ export default async function handler(req, res) {
       `;
       await sql`
         INSERT INTO queries_log (session_id, query_text, skill_used)
-        VALUES (${session_id}, ${userMsg}, ${skillName})
+        VALUES (${session_id}, ${sanitizeForLog(userMsg)}, ${skillName})
       `;
     }
 
@@ -1118,7 +1125,7 @@ export default async function handler(req, res) {
           contents: contents,
           generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
         }),
-        signal: AbortSignal.timeout(25000),
+        signal: AbortSignal.timeout(8000),
       },
     );
 
@@ -1126,9 +1133,10 @@ export default async function handler(req, res) {
       const geminiErr = await geminiRes.json().catch(() => ({}));
       const rawErrMsg = geminiErr?.error?.message || geminiErr?.error || "";
 
-      // Rate limit handling — friendly bilingual message
+      // Rate limit handling — rollback count and return friendly message
       if (geminiRes.status === 429 || rawErrMsg.includes("quota") || rawErrMsg.includes("rate")) {
         console.error("Gemini rate limit hit:", rawErrMsg);
+        await decrementRateLimit(sql, clientIP, user);
         return res.status(429).json({
           error: "AI service abhi busy hai (daily limit ke qareeb). Thodi der baad dobara try karein. Agar urgent sawaal hai toh apne bank ke Islamic banking section se seedha rabta karein.",
           error_en: "AI service is temporarily busy (approaching daily limit). Please try again in a few minutes. For urgent queries, contact your bank's Islamic banking section directly.",
@@ -1137,16 +1145,16 @@ export default async function handler(req, res) {
         });
       }
 
-      // Other Gemini errors
+      // Other Gemini errors — rollback count
       const errMsg = rawErrMsg || "AI service waqti tor par band hai. Thodi der baad dobara try karein.";
       console.error("Gemini API error:", geminiRes.status, errMsg);
+      await decrementRateLimit(sql, clientIP, user);
       return res.status(503).json({ error: errMsg, fallback: true });
     }
 
     const data = await geminiRes.json();
 
-    // 5b. Increment rate limit ONLY after successful Gemini response
-    await incrementRateLimit(sql, clientIP, user);
+    // 5b. Rate limit already incremented atomically — update remaining for response header
 
     // Update remaining count for response header (after increment)
     const newCount = (count ?? 0) + 1;
@@ -1177,7 +1185,7 @@ export default async function handler(req, res) {
           /educational\s+and\s+guidance\s+purposes/i,
           /binding\s+shariah\s+ruling/i,
           /consult.*shariah\s+advisor/i,
-          / مستند\s+عالم\s+дин/i,
+          / مستند\s+عالم\s+دين/i,
         ];
         const hasDisclaimer = disclaimerPatterns.some((p) => p.test(botReply));
 

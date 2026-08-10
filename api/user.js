@@ -2,22 +2,7 @@
 // Merged user endpoint — history + feedback
 import { neon } from '@neondatabase/serverless';
 import jwt from 'jsonwebtoken';
-
-const ALLOWED_ORIGINS = [
-  'https://islamic-banking-fte.vercel.app',
-  'http://localhost:8000',
-  'http://localhost:3000',
-];
-
-function setCors(req, res) {
-  const origin = req.headers.origin;
-  if (ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-}
+import { setCors } from './lib/cors.js';
 
 function parseCookies(cookieHeader) {
   const cookies = {};
@@ -137,7 +122,7 @@ async function handleFeedback(req, res) {
 
 // ---- Router ----
 export default async function handler(req, res) {
-  setCors(req, res);
+  setCors(req, res, 'GET, POST, DELETE, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const url = new URL(req.url, `https://${req.headers.host}`);

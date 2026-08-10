@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import { setCors } from '../lib/cors.js';
 
 function parseCookies(cookieHeader) {
   const cookies = {};
@@ -12,23 +13,8 @@ function parseCookies(cookieHeader) {
   return cookies;
 }
 
-function setCors(req, res) {
-  const ALLOWED_ORIGINS = [
-    'https://islamic-banking-fte.vercel.app',
-    'http://localhost:8000',
-    'http://localhost:3000',
-  ];
-  const origin = req.headers.origin;
-  if (ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-}
-
 export default async function handler(req, res) {
-  setCors(req, res);
+  setCors(req, res, 'POST, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -79,8 +65,9 @@ export default async function handler(req, res) {
     // Timing-safe comparison to prevent timing attacks
     const storedCode = otpRows[0].code;
     const submittedCode = code.trim();
-    if (storedCode.length !== submittedCode.length ||
-        !crypto.timingSafeEqual(Buffer.from(storedCode), Buffer.from(submittedCode))) {
+    const hashedSubmitted = crypto.createHash('sha256').update(`${normalizedEmail}:${submittedCode}`).digest('hex');
+    if (storedCode.length !== hashedSubmitted.length ||
+        !crypto.timingSafeEqual(Buffer.from(storedCode), Buffer.from(hashedSubmitted))) {
       await sql`UPDATE otps SET failed_attempts = failed_attempts + 1 WHERE id = ${otpRows[0].id}`;
       return res.status(400).json({ error: 'Incorrect OTP code' });
     }
