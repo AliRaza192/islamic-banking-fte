@@ -1,0 +1,13 @@
+node_modules
+.env
+.env.*
+.env.local
+.vercel
+.git
+.github
+*.md
+!CLAUDE.md
+evals/
+scripts/
+sql/
+workflows/

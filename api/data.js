@@ -86,7 +86,7 @@ async function handleRates(req, res) {
     const usdToPKR = currencyData.rates?.PKR || 280;
 
     let goldPKRPerTola = 245000;
-    let silverPKRPerTola = 2700;
+    const silverPKRPerTola = 2700;
 
     if (GOLD_API_KEY && GOLD_API_KEY !== 'goldapi.io') {
       try {
@@ -97,7 +97,9 @@ async function handleRates(req, res) {
           const goldData = await goldRes.json();
           goldPKRPerTola = Math.round((goldData.price || 0) * 1.174);
         }
-      } catch {}
+      } catch (_e) {
+        // Gold API failed — use fallback rate
+      }
     }
 
     const nisabGold = Math.round(goldPKRPerTola * 7.5);

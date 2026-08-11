@@ -1,6 +1,5 @@
 import { neon } from '@neondatabase/serverless';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
 import { setCors } from '../lib/cors.js';
 
 const TIER_LIMITS = {

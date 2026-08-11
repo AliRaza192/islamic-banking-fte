@@ -254,14 +254,14 @@
   {
     "id": "route-021",
     "query": "Diminishing musharakah home finance explain karo",
-    "expected_skill": "musharakah-mudarabah-specialist",
+    "expected_skill": "musharaka-dm",
     "expected_jurisdiction": "pakistan",
     "category": "product-routing"
   },
   {
     "id": "route-022",
     "query": "Ghar ka financing kaise hota hai diminishing musharakah mein?",
-    "expected_skill": "musharakah-mudarabah-specialist",
+    "expected_skill": "musharaka-dm",
     "expected_jurisdiction": "pakistan",
     "category": "product-routing"
   },

@@ -78,6 +78,14 @@ def detect_skill(msg):
         return "sukuk-investor"
     if ("takaful" in msg and ("accounting" in msg or "ifrs17" in msg or "ifrs 17" in msg or "operator" in msg)):
         return "takaful-ifrs17"
+    if ("diminishing musharakah" in msg or "musharaka mutanaqisah" in msg or
+        "co-ownership finance" in msg or "house finance" in msg or
+        "islamic mortgage" in msg or "declining musharakah" in msg or
+        "bank equity share" in msg or "equity buy-out" in msg or "meezan home" in msg or
+        "rental on bank share" in msg or "ghar ka qarz" in msg or
+        ("musharakah" in msg and ("home" in msg or "ghar" in msg or "house" in msg)) or
+        ("home fin" in msg and ("diminish" in msg or "musharakah" in msg or "co-ownership" in msg))):
+        return "musharaka-dm"
     if "full musharakah" in msg or "permanent musharakah" in msg or "running musharakah" in msg or "sme partnership" in msg:
         return "musharaka-full"
     if "musharakah" in msg or "mudarabah" in msg or "مشاركة" in msg or "مضاربة" in msg or "partnership" in msg:

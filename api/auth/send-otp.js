@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import crypto from "crypto";
 import { setCors } from "../lib/cors.js";
+import { validateBody, SendOtpSchema } from "../lib/validate.js";
 
 function getClientIP(req) {
   const vercelForwarded = req.headers["x-vercel-forwarded-for"];
@@ -56,14 +57,11 @@ export default async function handler(req, res) {
       return res.status(429).json({ error: "Too many requests. Please try again later." });
     }
 
-    const { email } = req.body || {};
-    const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
-    if (!email || !emailRegex.test(email.trim())) {
-      return res
-        .status(400)
-        .json({ error: "Valid email address required (e.g. name@gmail.com)" });
+    const zodResult = validateBody(SendOtpSchema, req.body || {});
+    if (!zodResult.ok) {
+      return res.status(400).json({ error: zodResult.error });
     }
-
+    const { email } = zodResult.data;
     const normalizedEmail = email.toLowerCase().trim();
 
     // Rate limit: max 3 OTPs per email in 10 minutes

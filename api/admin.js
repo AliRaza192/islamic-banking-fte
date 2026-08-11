@@ -10,7 +10,11 @@ function verifyAdmin(req) {
   const authHeader = req.headers.authorization || '';
   const provided = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
   if (!provided) return false;
-  return crypto.timingSafeEqual(Buffer.from(provided.padEnd(128)), Buffer.from(ADMIN_PASSWORD.padEnd(128)));
+  // Hash both values for constant-time comparison (avoids timing attacks)
+  const providedHash = crypto.createHash('sha256').update(provided).digest('hex');
+  const expectedHash = crypto.createHash('sha256').update(ADMIN_PASSWORD).digest('hex');
+  if (providedHash.length !== expectedHash.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(providedHash), Buffer.from(expectedHash));
 }
 
 function checkRateLimit(ip) {

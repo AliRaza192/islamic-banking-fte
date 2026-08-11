@@ -3,6 +3,7 @@
 import { neon } from '@neondatabase/serverless';
 import jwt from 'jsonwebtoken';
 import { setCors } from './lib/cors.js';
+import { validateBody, FeedbackSchema } from './lib/validate.js';
 
 function parseCookies(cookieHeader) {
   const cookies = {};
@@ -77,16 +78,17 @@ async function handleFeedback(req, res) {
   // POST — Submit feedback
   if (req.method === 'POST') {
     try {
-      const { session_id, rating, comment, skill_used, query_text, message_index } = req.body;
-      if (!rating || !['up', 'down'].includes(rating)) return res.status(400).json({ error: 'Rating must be "up" or "down"' });
+      const zodResult = validateBody(FeedbackSchema, req.body || {});
+      if (!zodResult.ok) return res.status(400).json({ error: zodResult.error });
+      const { session_id, rating, comment, message_index } = zodResult.data;
 
       let user_email = null;
       const user = verifyUser(req);
       if (user) user_email = user.email;
 
       await sql`
-        INSERT INTO user_feedback (session_id, user_email, message_index, rating, comment, skill_used, query_text)
-        VALUES (${session_id || null}, ${user_email}, ${message_index || 0}, ${rating}, ${comment || null}, ${skill_used || null}, ${query_text ? query_text.substring(0, 200) : null})
+        INSERT INTO user_feedback (session_id, user_email, message_index, rating, comment)
+        VALUES (${session_id}, ${user_email}, ${message_index}, ${rating}, ${comment || null})
       `;
       return res.status(200).json({ success: true, rating });
     } catch (err) {
@@ -100,16 +102,16 @@ async function handleFeedback(req, res) {
     try {
       const url = new URL(req.url, `https://${req.headers.host}`);
       const skill = url.searchParams.get('skill');
-      const days = parseInt(url.searchParams.get('days') || '30');
+      const days = Math.min(365, Math.max(1, parseInt(url.searchParams.get('days') || '30') || 30));
 
       let summary;
       if (skill) {
-        summary = await sql`SELECT skill_used, COUNT(*) FILTER (WHERE rating = 'up') as thumbs_up, COUNT(*) FILTER (WHERE rating = 'down') as thumbs_down, ROUND(COUNT(*) FILTER (WHERE rating = 'up')::numeric / NULLIF(COUNT(*), 0) * 100, 1) as approval_rate FROM user_feedback WHERE created_at > NOW() - (${days} || ' days')::INTERVAL AND skill_used = ${skill} GROUP BY skill_used`;
+        summary = await sql`SELECT skill_used, COUNT(*) FILTER (WHERE rating = 'up') as thumbs_up, COUNT(*) FILTER (WHERE rating = 'down') as thumbs_down, ROUND(COUNT(*) FILTER (WHERE rating = 'up')::numeric / NULLIF(COUNT(*), 0) * 100, 1) as approval_rate FROM user_feedback WHERE created_at > NOW() - ${days + ' days'}::INTERVAL AND skill_used = ${skill} GROUP BY skill_used`;
       } else {
-        summary = await sql`SELECT skill_used, COUNT(*) FILTER (WHERE rating = 'up') as thumbs_up, COUNT(*) FILTER (WHERE rating = 'down') as thumbs_down, ROUND(COUNT(*) FILTER (WHERE rating = 'up')::numeric / NULLIF(COUNT(*), 0) * 100, 1) as approval_rate FROM user_feedback WHERE created_at > NOW() - (${days} || ' days')::INTERVAL GROUP BY skill_used ORDER BY thumbs_up + thumbs_down DESC`;
+        summary = await sql`SELECT skill_used, COUNT(*) FILTER (WHERE rating = 'up') as thumbs_up, COUNT(*) FILTER (WHERE rating = 'down') as thumbs_down, ROUND(COUNT(*) FILTER (WHERE rating = 'up')::numeric / NULLIF(COUNT(*), 0) * 100, 1) as approval_rate FROM user_feedback WHERE created_at > NOW() - ${days + ' days'}::INTERVAL GROUP BY skill_used ORDER BY thumbs_up + thumbs_down DESC`;
       }
 
-      const overall = await sql`SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE rating = 'up') as up, COUNT(*) FILTER (WHERE rating = 'down') as down FROM user_feedback WHERE created_at > NOW() - (${days} || ' days')::INTERVAL`;
+      const overall = await sql`SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE rating = 'up') as up, COUNT(*) FILTER (WHERE rating = 'down') as down FROM user_feedback WHERE created_at > NOW() - ${days + ' days'}::INTERVAL`;
       const recentNegative = await sql`SELECT session_id, skill_used, query_text, comment, created_at FROM user_feedback WHERE rating = 'down' AND created_at > NOW() - INTERVAL '7 days' ORDER BY created_at DESC LIMIT 10`;
 
       return res.status(200).json({ period: `Last ${days} days`, overall: overall[0], by_skill: summary, recent_negative: recentNegative });

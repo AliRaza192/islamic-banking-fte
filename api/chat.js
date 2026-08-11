@@ -5,6 +5,7 @@ import { join } from "path";
 import { buildCalculationBlock } from "./calculate.js";
 import { sanitizeForLog } from "./lib/pii-encryption.js";
 import { setCors } from "./lib/cors.js";
+import { validateBody, ChatBodySchema } from "./lib/validate.js";
 
 // ---- Load files from disk (server-side only, with caching) ----
 const _fileCache = new Map();
@@ -138,7 +139,25 @@ function detectSkills(userMessage) {
   )
     skills.push("takaful-ifrs17");
 
-  // 9. Musharakah Full (FAS 4)
+  // 9. Diminishing Musharakah / Islamic Home Finance (FAS 4)
+  if (
+    msg.includes("diminishing musharakah") ||
+    msg.includes("musharaka mutanaqisah") ||
+    msg.includes("co-ownership finance") ||
+    msg.includes("house finance") ||
+    msg.includes("ghar ka qarz") ||
+    msg.includes("islamic mortgage") ||
+    msg.includes("declining musharakah") ||
+    msg.includes("bank equity share") ||
+    msg.includes("equity buy-out") ||
+    msg.includes("meezan home") ||
+    msg.includes("rental on bank share") ||
+    (msg.includes("musharakah") && (msg.includes("home") || msg.includes("ghar") || msg.includes("house"))) ||
+    (msg.includes("home fin") && (msg.includes("diminish") || msg.includes("musharakah") || msg.includes("co-ownership")))
+  )
+    skills.push("musharaka-dm");
+
+  // 10. Musharakah Full (FAS 4)
   if (
     msg.includes("full musharakah") ||
     msg.includes("permanent musharakah") ||
@@ -246,11 +265,6 @@ function detectSkills(userMessage) {
   if (skills.length === 0) skills.push("islamic-banking-advisor");
 
   return skills;
-}
-
-// Backward-compatible: return primary (first) skill
-function detectSkill(userMessage) {
-  return detectSkills(userMessage)[0];
 }
 
 // ---- Detect Jurisdiction ----
@@ -395,7 +409,6 @@ function buildSystemPrompt(userMessage) {
   const skillContents = skillNames
     .map((s) => loadFile(`skills/${s}/SKILL.md`))
     .filter(Boolean);
-  const primarySkill = skillNames[0];
 
   const msg = userMessage.toLowerCase();
   let extraRefs = "";
@@ -567,7 +580,7 @@ function parseCookies(cookieHeader) {
 }
 
 function verifyToken(authHeader, cookieHeader) {
-  let token = null;
+  let token;
   if (authHeader?.startsWith("Bearer ")) {
     token = authHeader.slice(7);
   } else {
@@ -703,7 +716,10 @@ export default async function handler(req, res) {
   const sql = DATABASE_URL ? neon(DATABASE_URL) : null;
 
   try {
-    // 1. Validate input
+    // 1. Validate input (Zod schema + security checks)
+    const zodResult = validateBody(ChatBodySchema, req.body);
+    if (!zodResult.ok)
+      return res.status(400).json({ error: zodResult.error });
     const validationError = validateInput(req.body);
     if (validationError)
       return res.status(400).json({ error: validationError });
@@ -1172,8 +1188,9 @@ export default async function handler(req, res) {
       const financialSkills = [
         "murabaha-specialist", "ijara-specialist", "salam-specialist",
         "istisna-a-specialist", "sukuk-issuer", "sukuk-investor",
-        "takaful-ifrs17", "musharaka-full", "musharakah-mudarabah-specialist",
-        "sukuk-takaful-specialist", "zakat-advisor", "shariah-compliance-checker",
+        "takaful-ifrs17", "musharaka-full", "musharaka-dm",
+        "musharakah-mudarabah-specialist", "sukuk-takaful-specialist",
+        "zakat-advisor", "shariah-compliance-checker",
         "halal-calculator", "pakistan-banking-navigator",
       ];
       const isFinancialQuery = financialSkills.includes(skillName);

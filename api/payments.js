@@ -107,7 +107,7 @@ async function handleVerify(req, res) {
 }
 
 async function handlePortal(req, res) {
-  const { STRIPE_SECRET_KEY, JWT_SECRET, DATABASE_URL } = process.env;
+  const { STRIPE_SECRET_KEY, DATABASE_URL } = process.env;
   if (!STRIPE_SECRET_KEY) return res.status(500).json({ error: 'Stripe not configured' });
 
   try {

@@ -2,16 +2,7 @@ import { neon } from "@neondatabase/serverless";
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { setCors } from '../lib/cors.js';
-
-function parseCookies(cookieHeader) {
-  const cookies = {};
-  if (!cookieHeader) return cookies;
-  for (const pair of cookieHeader.split(';')) {
-    const [key, ...rest] = pair.split('=');
-    cookies[key.trim()] = rest.join('=').trim();
-  }
-  return cookies;
-}
+import { validateBody, VerifyOtpSchema } from '../lib/validate.js';
 
 export default async function handler(req, res) {
   setCors(req, res, 'POST, OPTIONS');
@@ -37,10 +28,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { email, code } = req.body || {};
-    if (!email || !code) {
-      return res.status(400).json({ error: 'Email and code required' });
+    const zodResult = validateBody(VerifyOtpSchema, req.body || {});
+    if (!zodResult.ok) {
+      return res.status(400).json({ error: zodResult.error });
     }
+    const { email, code } = zodResult.data;
 
     const normalizedEmail = email.toLowerCase().trim();
 

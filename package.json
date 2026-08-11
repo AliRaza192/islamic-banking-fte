@@ -5,6 +5,13 @@
   "main": "api/chat.js",
   "scripts": {
     "start": "vercel dev",
+    "lint": "eslint api/ --ignore-pattern '*.min.js'",
+    "lint:fix": "eslint api/ --fix --ignore-pattern '*.min.js'",
+    "format": "prettier --write 'api/**/*.js' 'web/**/*.js'",
+    "format:check": "prettier --check 'api/**/*.js' 'web/**/*.js'",
+    "test": "vitest run && python3 evals/run-evals.py && python3 scripts/validate-routing.py",
+    "test:unit": "vitest run",
+    "test:evals": "python3 evals/run-evals.py",
     "evals": "python3 evals/run-evals.py",
     "evals:live": "python3 evals/run-evals.py --live",
     "validate": "python3 scripts/validate-routing.py"
@@ -25,6 +32,13 @@
     "@neondatabase/serverless": "1.1.0",
     "jsonwebtoken": "9.0.3",
     "resend": "6.12.4",
-    "stripe": "22.2.0"
+    "stripe": "22.2.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.1",
+    "prettier": "^3.9.6",
+    "vitest": "^4.1.10"
   }
 }
